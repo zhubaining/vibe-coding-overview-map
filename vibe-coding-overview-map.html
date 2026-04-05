@@ -1,0 +1,3993 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>软件开发全景图</title>
+  <style>
+    :root {
+      --bg: #f5ede1;
+      --paper: rgba(255, 251, 245, 0.94);
+      --paper-soft: rgba(255, 251, 245, 0.78);
+      --ink: #201c17;
+      --muted: #6b645c;
+      --line: rgba(54, 44, 30, 0.20);
+      --accent: #d56741;
+      --teal: #2f6f68;
+      --gold: #b7812b;
+      --shadow: 0 24px 56px rgba(52, 39, 20, 0.12);
+      --group-shadow: 0 14px 28px rgba(52, 39, 20, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(213, 103, 65, 0.10), transparent 24%),
+        radial-gradient(circle at top right, rgba(47, 111, 104, 0.10), transparent 26%),
+        linear-gradient(180deg, #f8f1e6 0%, #efe4d5 100%);
+      font-family: "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    .page {
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .menu-button {
+      appearance: none;
+      border: 1px solid rgba(64, 49, 27, 0.10);
+      background: var(--paper);
+      color: var(--ink);
+      padding: 10px 14px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+      font-size: 13px;
+      transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+    }
+
+    .menu-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .menu-button.is-active {
+      background: rgba(255,255,255,0.82);
+      color: var(--ink);
+      border-color: rgba(213, 103, 65, 0.24);
+    }
+
+    .zoom-dock {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 31;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 18px;
+      padding: 12px 14px 10px;
+      border-radius: 22px;
+      border: 1px solid rgba(64, 49, 27, 0.10);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      min-width: 520px;
+    }
+
+    .zoom-dock-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .zoom-dock-label {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+
+    .zoom-dock-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .zoom-dock-hint {
+      padding: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .zoom-dock .zoom-button {
+      padding: 8px 11px;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .zoom-dock .zoom-display {
+      min-width: 62px;
+      text-align: center;
+      background: transparent;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(32, 28, 23, 0.05);
+      border: 1px solid rgba(64, 49, 27, 0.08);
+    }
+
+    .mode-switch-button {
+      appearance: none;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--ink);
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+    }
+
+    .mode-switch-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .mode-switch-button.is-active {
+      background: rgba(213, 103, 65, 0.92);
+      color: #fffaf5;
+      box-shadow: 0 8px 18px rgba(213, 103, 65, 0.18);
+    }
+
+    .title-bar {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 28;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+    }
+
+    .title-float {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      padding: 12px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(64, 49, 27, 0.10);
+      background: rgba(255, 251, 245, 0.92);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .title-float-main {
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .title-float-meta {
+      font-size: 14px;
+      line-height: 1;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .title-side {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-side .menu-button {
+      padding: 8px 12px;
+      font-size: 12px;
+      box-shadow: var(--shadow);
+      background: rgba(255,255,255,0.7);
+    }
+
+    .title-links {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(64, 49, 27, 0.10);
+      background: rgba(255, 251, 245, 0.88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .title-links-label {
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .title-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .title-link:hover {
+      text-decoration: underline;
+    }
+
+    .demo-panel {
+      left: 50%;
+      bottom: 116px;
+      width: min(430px, calc(100vw - 36px));
+      padding: 20px 22px;
+    }
+
+    .demo-panel.panel {
+      transform: translateX(-50%) translateY(8px);
+    }
+
+    .demo-panel.panel.is-open {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .demo-panel .detail-badge {
+      background: rgba(47, 111, 104, 0.14);
+      color: var(--teal);
+    }
+
+    .demo-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .demo-panel h3 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .demo-step-meta {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      padding-top: 4px;
+    }
+
+    .demo-panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .demo-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .demo-actions-center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .demo-actions-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 96px;
+    }
+
+    .demo-actions .menu-button {
+      box-shadow: none;
+      background: rgba(255,255,255,0.72);
+    }
+
+    .demo-actions .menu-button.is-primary {
+      background: var(--accent);
+      color: #fffaf5;
+      border-color: transparent;
+    }
+
+    .demo-actions .menu-button:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .panel {
+      position: fixed;
+      z-index: 29;
+      background: var(--paper);
+      border: 1px solid rgba(64, 49, 27, 0.08);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      pointer-events: auto;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+    }
+
+    .panel.is-open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .intro {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, calc(-50% - 8px));
+      width: min(920px, calc(100vw - 36px));
+      max-height: calc(100vh - 48px);
+      overflow: auto;
+      padding: 28px 30px;
+    }
+
+    .intro.panel.is-open {
+      transform: translate(-50%, -50%);
+    }
+
+    .intro-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .intro-header-title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .intro-close {
+      padding: 8px 12px;
+      font-size: 12px;
+      box-shadow: none;
+      background: rgba(255,255,255,0.72);
+      min-width: 88px;
+      align-self: center;
+    }
+
+    .intro-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 18px;
+    }
+
+    .intro-author-links {
+      margin-top: 14px;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .intro-author-links a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .intro-author-links a:hover {
+      text-decoration: underline;
+    }
+
+    h1 {
+      margin: 18px 0 12px;
+      font-size: clamp(34px, 4vw, 60px);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      font-family: "Iowan Old Style", "Baskerville", "Songti SC", "STSong", serif;
+    }
+
+    .intro p,
+    .detail p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .intro-list {
+      margin: 14px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .intro-list li + li {
+      margin-top: 4px;
+    }
+
+    .intro-products {
+      margin: 14px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .intro-products li + li {
+      margin-top: 6px;
+    }
+
+    .intro-product-link,
+    .intro-qr-toggle {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      background: transparent;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .intro-product-link:hover {
+      text-decoration: underline;
+    }
+
+    .intro-qr-toggle:hover {
+      text-decoration: underline;
+    }
+
+    .qr-modal {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, calc(-50% - 8px));
+      width: min(360px, calc(100vw - 36px));
+      padding: 22px 22px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      text-align: center;
+    }
+
+    .qr-modal.panel.is-open {
+      transform: translate(-50%, -50%);
+    }
+
+    .qr-modal-title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.3;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .qr-modal-image {
+      width: min(240px, 100%);
+      height: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(64, 49, 27, 0.08);
+      background: #fff;
+      box-shadow: 0 10px 24px rgba(52, 39, 20, 0.10);
+    }
+
+    .qr-modal-note {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .intro strong {
+      color: var(--ink);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .chip {
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.74);
+      border: 1px solid rgba(64, 49, 27, 0.09);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .detail {
+      top: 50%;
+      right: 18px;
+      transform: translateY(-50%);
+      width: 360px;
+      max-height: calc(100vh - 48px);
+      overflow: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: linear-gradient(180deg, rgba(255, 248, 241, 0.98) 0%, rgba(255, 252, 247, 0.98) 100%);
+      border: 1px solid rgba(213, 103, 65, 0.22);
+      box-shadow: 0 28px 56px rgba(52, 39, 20, 0.16), 0 0 0 1px rgba(213, 103, 65, 0.08);
+    }
+
+    .detail.panel {
+      transform: translateY(calc(-50% - 8px));
+    }
+
+    .detail.panel.is-open {
+      transform: translateY(-50%);
+    }
+
+    .detail-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(213, 103, 65, 0.16);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      align-self: flex-start;
+    }
+
+    .detail h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.22;
+      color: var(--ink);
+    }
+
+    .detail-section h3 {
+      margin: 0 0 8px;
+      color: rgba(72, 58, 44, 0.92);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .detail-section {
+      padding: 14px 15px 13px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(64, 49, 27, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.52);
+    }
+
+    .detail-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 14px;
+      line-height: 1.8;
+      color: rgba(58, 50, 40, 0.92);
+    }
+
+    .canvas-shell {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .canvas-head {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      z-index: 26;
+      width: min(980px, calc(100vw - 420px));
+      padding: 18px 20px;
+      background: var(--paper);
+      border: 1px solid rgba(64, 49, 27, 0.08);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .canvas-head h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .canvas-head p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    .stage-switcher {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .stage-button {
+      appearance: none;
+      border: 1px solid rgba(64, 49, 27, 0.10);
+      background: rgba(255,255,255,0.84);
+      color: var(--ink);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+    }
+
+    .stage-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .stage-button.is-active {
+      background: var(--accent);
+      color: #fffaf5;
+    }
+
+    .canvas-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+      align-items: center;
+    }
+
+    .focus-switcher {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .focus-button {
+      appearance: none;
+      border: 1px solid rgba(64, 49, 27, 0.10);
+      background: rgba(255,255,255,0.84);
+      color: var(--ink);
+      padding: 9px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+    }
+
+    .focus-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .focus-button.is-active {
+      background: rgba(47, 111, 104, 0.92);
+      color: #fffaf5;
+    }
+
+    .zoom-button {
+      appearance: none;
+      border: 1px solid rgba(64, 49, 27, 0.10);
+      background: rgba(255,255,255,0.84);
+      color: var(--ink);
+      padding: 10px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+    }
+
+    .zoom-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .zoom-display {
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(32, 28, 23, 0.06);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .canvas-scroll {
+      overflow: auto;
+      width: 100vw;
+      height: 100vh;
+      padding: 0;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      background:
+        radial-gradient(circle at top left, rgba(213, 103, 65, 0.08), transparent 24%),
+        radial-gradient(circle at top right, rgba(47, 111, 104, 0.08), transparent 26%),
+        linear-gradient(180deg, #f8f1e6 0%, #efe4d5 100%);
+    }
+
+    .canvas-scroll.is-panning {
+      cursor: grabbing;
+    }
+
+    .canvas-viewport {
+      position: relative;
+      width: 6400px;
+      height: 4600px;
+    }
+
+    .canvas {
+      position: relative;
+      width: 6400px;
+      height: 4600px;
+      border-radius: 0;
+      border: none;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.68) 0%, rgba(255,255,255,0.24) 100%),
+        radial-gradient(circle at 8% 8%, rgba(213, 103, 65, 0.08), transparent 16%),
+        radial-gradient(circle at 92% 8%, rgba(47, 111, 104, 0.08), transparent 20%),
+        #fbf6ee;
+      overflow: hidden;
+    }
+
+    .knowledge-zone {
+      position: absolute;
+      border: 2px dashed rgba(213, 103, 65, 0.34);
+      border-radius: 28px;
+      background: rgba(255, 251, 245, 0.12);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .knowledge-zone-label {
+      position: absolute;
+      top: -14px;
+      left: 18px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 251, 245, 0.96);
+      border: 1px solid rgba(213, 103, 65, 0.20);
+      color: var(--accent);
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .group {
+      position: absolute;
+      width: 560px;
+      min-height: 300px;
+      border-radius: 20px;
+      border: 1px solid rgba(64, 49, 27, 0.10);
+      background: var(--paper-soft);
+      box-shadow: var(--group-shadow);
+      padding: 12px;
+      transition: opacity 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+      cursor: grab;
+      z-index: 2;
+    }
+
+    .group.is-hidden {
+      opacity: 0.14;
+    }
+
+    .group.is-active {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 34px rgba(213, 103, 65, 0.10), inset 0 0 0 1px rgba(213, 103, 65, 0.24);
+      border-color: rgba(213, 103, 65, 0.42);
+      background: rgba(255, 250, 246, 0.96);
+    }
+
+    .group.is-current {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 24px 42px rgba(213, 103, 65, 0.14), inset 0 0 0 2px rgba(213, 103, 65, 0.62);
+      border-color: rgba(213, 103, 65, 0.72);
+      background: rgba(255, 247, 242, 0.98);
+    }
+
+    .group.is-dim {
+      opacity: 0.16;
+    }
+
+    .group.is-icon-node {
+      width: 140px !important;
+      min-height: 140px !important;
+      padding: 0;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .group.is-icon-node.is-active {
+      transform: none;
+      box-shadow: none;
+      border: none;
+    }
+
+    .group.is-icon-node.is-current {
+      transform: none;
+      box-shadow: none;
+      border: none;
+    }
+
+    .group.is-icon-node.is-current .icon-node-avatar {
+      border-color: rgba(213, 103, 65, 0.90);
+      box-shadow: 0 22px 38px rgba(213, 103, 65, 0.18), inset 0 0 0 2px rgba(213, 103, 65, 0.26);
+      color: var(--accent);
+    }
+
+    .group.is-icon-node.is-dim {
+      opacity: 0.28;
+    }
+
+    .group.is-icon-node .group-head,
+    .group.is-icon-node .group-flow,
+    .group.is-icon-node .subgrid {
+      display: none;
+    }
+
+    .icon-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      height: 100%;
+      min-height: 140px;
+    }
+
+    .icon-node-button {
+      appearance: none;
+      border: none;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+    }
+
+    .icon-node-button.is-active .icon-node-avatar {
+      border-color: rgba(213, 103, 65, 0.48);
+      box-shadow: 0 18px 34px rgba(213, 103, 65, 0.18);
+      color: var(--accent);
+    }
+
+    .icon-node-button.is-dim {
+      opacity: 0.30;
+    }
+
+    .icon-node-avatar {
+      width: 92px;
+      height: 92px;
+      border-radius: 999px;
+      border: 2px solid rgba(79, 106, 255, 0.72);
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: 0 16px 30px rgba(52, 39, 20, 0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(79, 106, 255, 0.92);
+      transition: border-color 0.16s ease, box-shadow 0.16s ease, color 0.16s ease, opacity 0.16s ease;
+    }
+
+    .icon-node-avatar svg {
+      width: 56px;
+      height: 56px;
+      display: block;
+    }
+
+    .icon-node-label {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .group.is-collapsed .subgrid {
+      display: none;
+    }
+
+    .group.is-compact .subgrid {
+      display: none;
+    }
+
+    .group-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+      align-items: start;
+      cursor: pointer;
+    }
+
+    .group-head h3 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.15;
+    }
+
+    .group-tag {
+      flex: 0 0 auto;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(32, 28, 23, 0.06);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .group.is-current .group-head h3 {
+      color: var(--accent);
+    }
+
+    .group.is-current .group-tag {
+      background: rgba(213, 103, 65, 0.14);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .subgrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .subgrid.is-cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .entity {
+      width: 100%;
+      text-align: left;
+      border: 1px solid rgba(64, 49, 27, 0.10);
+      background: rgba(255,255,255,0.96);
+      border-radius: 12px;
+      padding: 9px 10px 8px;
+      cursor: pointer;
+      box-shadow: 0 8px 16px rgba(52, 39, 20, 0.07);
+      transition: transform 0.16s ease, opacity 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .entity:hover {
+      transform: translateY(-1px);
+    }
+
+    .entity.is-active {
+      transform: translateY(-1px);
+      border-color: rgba(213, 103, 65, 0.76);
+      background: linear-gradient(180deg, rgba(255,243,236,1) 0%, rgba(255,250,247,1) 100%);
+      box-shadow: 0 14px 24px rgba(213, 103, 65, 0.12), inset 0 0 0 1.5px rgba(213, 103, 65, 0.34);
+    }
+
+    .entity.is-dim {
+      opacity: 0.22;
+    }
+
+    .entity-title {
+      display: block;
+      font-size: 13px;
+      line-height: 1.25;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .entity.is-active .entity-title {
+      color: var(--accent);
+    }
+
+    .entity.is-active .entity-subtitle {
+      color: rgba(58, 50, 40, 0.82);
+    }
+
+    .entity-subtitle {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    #connections {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .connection {
+      fill: none;
+      stroke: rgba(47, 111, 104, 0.34);
+      stroke-width: 2.4;
+      transition: opacity 0.16s ease, stroke 0.16s ease, stroke-width 0.16s ease;
+    }
+
+    .connection.is-contains {
+      stroke: rgba(183, 129, 43, 0.38);
+      stroke-dasharray: 8 6;
+    }
+
+    .connection.is-active {
+      stroke: var(--accent);
+      stroke-width: 2.8;
+      opacity: 0.78;
+    }
+
+    .connection.is-dim {
+      opacity: 0.10;
+    }
+
+    .connection-label {
+      font-size: 12px;
+      font-weight: 700;
+      fill: rgba(58, 50, 40, 0.92);
+      pointer-events: none;
+    }
+
+    .connection-label.is-dim {
+      opacity: 0.18;
+    }
+
+    @media (max-width: 1200px) {
+      .title-bar {
+        position: static;
+        transform: none;
+        margin: 18px;
+        width: auto;
+        justify-content: flex-start;
+        white-space: normal;
+        flex-wrap: wrap;
+      }
+
+      .title-float {
+        width: auto;
+      }
+
+      .title-side {
+        flex-wrap: wrap;
+      }
+
+      .title-links {
+        white-space: normal;
+        flex-wrap: wrap;
+      }
+
+      .zoom-dock {
+        position: static;
+        transform: none;
+        margin: 0 18px 18px;
+        width: fit-content;
+      }
+
+      .panel,
+      .detail,
+      .intro,
+      .demo-panel {
+        position: static;
+        width: auto;
+        max-width: none;
+        margin: 18px;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+      }
+
+      .canvas-head {
+        position: static;
+        width: auto;
+        margin: 0 18px 18px;
+      }
+
+      .canvas-scroll {
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="title-bar">
+      <div class="title-float">
+        <span class="title-float-main">Vibe coding你也行——软件开发全景图</span>
+        <span class="title-float-meta">v0.9 · by 朱百宁</span>
+      </div>
+      <div class="title-side">
+        <button type="button" class="menu-button" id="toggleIntro">关于</button>
+        <span class="title-links">
+          <span class="title-links-label">扩展阅读：</span>
+          <a class="title-link" href="https://mp.weixin.qq.com/s/9CQiA9z5YAA6fsjSKtARUw" target="_blank" rel="noreferrer">AI公司从创办到发布产品全攻略</a>
+          <a class="title-link" href="https://mp.weixin.qq.com/s/lDaOpz6cxpcpI_swXSy98Q" target="_blank" rel="noreferrer">AI编程心得27条</a>
+        </span>
+      </div>
+    </div>
+
+    <div class="zoom-dock" aria-label="缩放与拖动工具">
+      <div class="zoom-dock-group">
+        <span class="zoom-dock-label">缩放</span>
+        <div class="zoom-dock-controls">
+          <button type="button" class="zoom-button" id="zoomDockOut">−</button>
+          <span class="zoom-display" id="zoomDockDisplay">100%</span>
+          <button type="button" class="zoom-button" id="zoomDockIn">+</button>
+          <button type="button" class="zoom-button" id="zoomDockFit">适配</button>
+        </div>
+      </div>
+      <div class="zoom-dock-group">
+        <span class="zoom-dock-label">模式</span>
+        <div class="mode-switch" role="tablist" aria-label="查看模式切换">
+          <button type="button" class="mode-switch-button is-active" id="modeExplore" aria-pressed="true">自行探索</button>
+          <button type="button" class="mode-switch-button" id="modeDemo" aria-pressed="false">流程演示</button>
+        </div>
+      </div>
+      <span class="zoom-dock-hint">点击模块可以查看详情</span>
+    </div>
+
+    <aside class="demo-panel panel" id="demoPanel">
+      <div class="detail-badge">流程演示模式</div>
+      <div class="demo-title-row">
+        <h3 id="demoStepTitle">从 0 到 1 走一遍全链路</h3>
+        <span class="demo-step-meta" id="demoStepMeta">第 1 步</span>
+      </div>
+      <p id="demoStepText">按顺序看大模块，了解从准备、开发、部署到发布给用户的完整过程。</p>
+      <div class="demo-actions">
+        <div class="demo-actions-center">
+          <button type="button" class="menu-button" id="demoPrev">上一步</button>
+          <button type="button" class="menu-button is-primary" id="demoNext">下一步</button>
+        </div>
+        <div class="demo-actions-right">
+          <button type="button" class="menu-button" id="demoClose">关闭演示</button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="intro panel" id="introPanel">
+        <div class="intro-header">
+          <div class="intro-header-title">关于这张图</div>
+        </div>
+        <p>AI 时代让编程门槛变得很低。如果你只是想做一个类似贪吃蛇这样的页面，确实很简单，说一句话就可以。</p>
+        <p>但如果你想做一个真正商业化的系统，一句话是不可能的。你还是要做很多事情，也要懂一些基本流程和概念，这样和 AI 沟通起来才更高效。</p>
+        <p>这几个月，我用 AI 开发并推进了这些产品：</p>
+        <ul class="intro-products">
+          <li>火火猫 AI 起名，形态：微信小程序（<button type="button" class="intro-qr-toggle" data-qr-src="https://www.huohuomao.com/images/%E5%B0%8F%E7%A8%8B%E5%BA%8F%E7%A0%81.jpg" data-qr-title="火火猫 AI 起名二维码" data-qr-note="扫码可打开火火猫 AI 起名微信小程序。">二维码</button>）</li>
+          <li>AI 人生模拟器游戏，形态：微信小游戏（国内）、App（LifeLife，海外）（<a class="intro-product-link" href="https://apps.apple.com/us/app/lifelife/id6755062821" target="_blank" rel="noreferrer">App Store</a> / <a class="intro-product-link" href="https://play.google.com/store/apps/details?id=com.lifelife.app" target="_blank" rel="noreferrer">Google Play</a>）</li>
+          <li>亏了么，形态：iOS App（海外）（<a class="intro-product-link" href="https://apps.apple.com/my/app/%E4%BA%8F%E4%BA%86%E4%B9%88/id6758881277" target="_blank" rel="noreferrer">App Store</a>）</li>
+          <li>Agent 相亲平台，形态：网站（<a class="intro-product-link" href="https://www.agenlace.com" target="_blank" rel="noreferrer">www.agenlace.com</a>）</li>
+          <li>语言输入，形态：Mac 端软件（待发布）</li>
+          <li>命令行交互智能增强软件，形态：脚本（待发布）</li>
+        </ul>
+        <p>基本上，相关流程我都亲自走了一遍。</p>
+        <p>所以我把这些经验总结成这张图，分享给非计算机科班人士，或者毕业后已经把软件技能还给学校的人。</p>
+        <p>一图胜千言。用图的形式，而且还是可以交互的图，会更直观一些。希望对你有帮助。</p>
+        <div class="intro-author-links">
+          关注作者的社交账号：
+          <a href="https://x.com/zhubaining001" target="_blank" rel="noreferrer">X</a>
+          /
+          <a href="https://web.okjike.com/u/b197f4fc-2487-4394-ae57-1ede11c6270c" target="_blank" rel="noreferrer">即刻</a>
+        </div>
+        <div class="intro-actions">
+          <button type="button" class="menu-button intro-close" id="closeIntro">关闭</button>
+        </div>
+      </div>
+
+      <div class="qr-modal panel" id="qrModal">
+        <div class="intro-header">
+          <div class="qr-modal-title" id="qrModalTitle">二维码</div>
+        </div>
+        <img class="qr-modal-image" id="qrModalImage" alt="二维码">
+        <p class="qr-modal-note" id="qrModalNote"></p>
+        <div class="intro-actions">
+          <button type="button" class="menu-button intro-close" id="closeQrModal">关闭</button>
+        </div>
+      </div>
+
+      <aside class="detail panel" id="detailPanel">
+        <div class="detail-badge" id="detailCategory">节点说明</div>
+        <h2 id="detailTitle">点击画布里的任意实体</h2>
+        <p id="detailIntro">右侧会优先说明这个实体是做什么用的、通常接收什么、会产出什么，以及它和其他实体的关系。你可以先看全景，也可以切换成开发、发布、支付阶段。</p>
+
+        <div class="detail-section">
+          <h3>要点</h3>
+          <ul class="detail-list" id="detailEssence">
+            <li>一个真正可发布的产品，不只是一个页面，而是一整套互相连接的实体网络。</li>
+          </ul>
+        </div>
+
+        <div class="detail-section">
+          <h3>输入 / 输出</h3>
+          <ul class="detail-list" id="detailWhy">
+            <li>输入：先理解它通常接收什么，再理解它会把什么东西交给下游。</li>
+          </ul>
+        </div>
+      </aside>
+
+    <section class="canvas-shell">
+      <div class="canvas-head panel" id="controlsPanel">
+        <h2>从 0 到 1 产出完整产品所需的实体概念</h2>
+        <p>图里同时展示：实体本身、实体的组成，以及实体之间的连接关系。比如官网会连接域名，域名再连接域名服务商和证书，证书又来自证书签发机构；App 则会连接 iOS 发布、国内安卓市场和 Google Play。</p>
+        <div class="stage-switcher" id="stageSwitcher">
+          <button type="button" class="stage-button is-active" data-stage="all">全景</button>
+          <button type="button" class="stage-button" data-stage="build">开发</button>
+          <button type="button" class="stage-button" data-stage="deploy">部署</button>
+          <button type="button" class="stage-button" data-stage="ship">发布</button>
+          <button type="button" class="stage-button" data-stage="pay">支付</button>
+        </div>
+        <div class="focus-switcher" id="focusSwitcher">
+          <button type="button" class="focus-button is-active" data-focus="all">看全部</button>
+          <button type="button" class="focus-button" data-focus="tools">AI 工具</button>
+          <button type="button" class="focus-button" data-focus="web">Web</button>
+          <button type="button" class="focus-button" data-focus="app">App / 小程序</button>
+          <button type="button" class="focus-button" data-focus="deploy">部署</button>
+          <button type="button" class="focus-button" data-focus="release">发布</button>
+          <button type="button" class="focus-button" data-focus="payment">支付</button>
+        </div>
+        <div class="canvas-toolbar">
+          <button type="button" class="zoom-button" id="zoomOut">缩小</button>
+          <button type="button" class="zoom-button" id="zoomIn">放大</button>
+          <button type="button" class="zoom-button" id="zoomReset">100%</button>
+          <button type="button" class="zoom-button" id="zoomFit">适配视图</button>
+          <span class="zoom-display" id="zoomDisplay">缩放 100%</span>
+        </div>
+      </div>
+
+      <div class="canvas-scroll" id="canvasScroll">
+        <div class="canvas-viewport" id="canvasViewport">
+          <div class="canvas" id="canvas">
+            <div class="knowledge-zone" style="left: 980px; top: 1580px; width: 1120px; height: 600px;" aria-hidden="true">
+              <span class="knowledge-zone-label">其他重要模块</span>
+            </div>
+            <svg id="connections" aria-hidden="true">
+              <defs>
+                <marker id="arrow-default" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(47, 111, 104, 0.40)"></path>
+                </marker>
+                <marker id="arrow-active" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#d56741"></path>
+                </marker>
+              </defs>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const groups = [
+      {
+        id: "g-developer",
+        x: 40,
+        y: 470,
+        width: 240,
+        minHeight: 140,
+        title: "开发者",
+        tag: "发起、判断、确认",
+        description: "整个链路的真正起点还是开发者自己。你负责定义目标、给 AI 下指令、看结果、做取舍，也负责最后的发布和商业判断。",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        entities: ["maker", "workspace"],
+        flowInput: "输入：产品目标、业务判断、资源约束",
+        flowOutput: "产出：需求方向、开发指令、人工确认"
+      },
+      {
+        id: "g-planning",
+        x: 350,
+        y: 430,
+        width: 320,
+        minHeight: 170,
+        title: "产品规划",
+        tag: "先想清楚再让 AI 开干",
+        description: "市场分析、需求分析、产品规划这些内容最好提前想清楚。AI 可以辅助你分析和完善，但关键结论最好还是沉淀到文本里，后面和 AI 沟通、反复迭代都会更顺。",
+        stages: ["all", "build"],
+        entities: ["market-analysis", "demand-analysis", "product-plan"],
+        flowInput: "输入：业务方向、用户问题、竞品信息、产品想法",
+        flowOutput: "产出：分析结论、产品方案、沉淀下来的规划文档"
+      },
+      {
+        id: "g-ai-tools",
+        x: 740,
+        y: 440,
+        width: 360,
+        minHeight: 170,
+        title: "AI 编程工具",
+        tag: "AI 编程工具",
+        description: "把工具拆开看，你会更清楚每个 AI 伙计到底负责哪一段工作，而不是都塞进一个模糊的“AI”。",
+        stages: ["all", "build"],
+        entities: ["cursor", "codex", "claude"],
+        flowInput: "输入：开发者需求、上下文、仓库代码",
+        flowOutput: "产出：前端 / 客户端代码、后端代码、修改建议"
+      },
+      {
+        id: "g-code",
+        x: 740,
+        y: 860,
+        width: 360,
+        minHeight: 190,
+        title: "代码托管平台",
+        tag: "源码最后存在哪",
+        description: "代码托管平台主要指 GitHub、GitLab 这类平台。AI 工具生成的代码，最终应该存到这里，再由 CI 去拉取源码做构建和部署。",
+        stages: ["all", "build", "deploy", "ship"],
+        entities: ["github", "gitlab"],
+        flowInput: "输入：AI 生成的源码、人工修改",
+        flowOutput: "产出：可追踪仓库、CI 构建任务"
+      },
+      {
+        id: "g-local",
+        x: 280,
+        y: 860,
+        width: 380,
+        minHeight: 220,
+        title: "本地调试环境",
+        tag: "先在本机跑通和排查",
+        description: "很多问题不会第一次就在线上暴露出来，往往要先在本地运行、调试、看日志、查数据，才能把问题定位清楚。",
+        stages: ["all", "build", "deploy"],
+        entities: ["local-terminal", "local-browser", "local-beta-builds", "local-logs", "local-db"],
+        flowInput: "输入：AI 生成的代码、本地配置、测试数据",
+        flowOutput: "产出：本地运行结果、调试结论、修复建议"
+      },
+      {
+        id: "g-dev-platform",
+        x: 1230,
+        y: 500,
+        width: 420,
+        minHeight: 220,
+        title: "前端 / 客户端开发工具",
+        tag: "调试、运行、打包工程",
+        description: "AI 生成的代码可以放进开发平台继续调试、运行、预览和打包，比如微信开发者工具、Android Studio、Xcode、HBuilder。",
+        stages: ["all", "build", "ship"],
+        entities: ["wechat-devtools", "android-studio", "xcode", "hbuilder"],
+        flowInput: "输入：AI 生成的前端 / 客户端工程代码，或仓库中的工程代码",
+        flowOutput: "产出：调试结果、安装包、可上传包体"
+      },
+      {
+        id: "g-miniapp-admin",
+        x: 1840,
+        y: 260,
+        width: 340,
+        minHeight: 140,
+        title: "微信小程序管理后台",
+        tag: "上传、审核、发布",
+        description: "小程序代码上传、版本管理、审核和发布通常都在这里完成。",
+        stages: ["all", "ship"],
+        entities: ["wechat-release"],
+        flowInput: "输入：小程序代码包、版本信息",
+        flowOutput: "产出：可审核、可发布的小程序版本"
+      },
+      {
+        id: "g-web",
+        x: 2470,
+        y: 1280,
+        width: 360,
+        minHeight: 250,
+        title: "网站",
+        tag: "浏览器里的用户界面",
+        description: "网站是用户在浏览器里直接接触到的实体。它里面既有官网、文档站、定价页、下载页、Web App，也包含域名、DNS 和证书这些组成部分。",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        entities: ["website", "docs-site", "pricing-page", "landing-page", "webapp", "domain", "dns", "tls-cert"],
+        flowInput: "输入：前端代码、部署配置",
+        flowOutput: "产出：可访问的网站、文档站、Web App"
+      },
+      {
+        id: "g-app",
+        x: 2470,
+        y: 560,
+        width: 420,
+        minHeight: 150,
+        title: "APP",
+        tag: "应用市场里的用户界面",
+        description: "APP 是通过 iOS App Store、Google Play 或国内安卓市场分发给用户的正式客户端。",
+        stages: ["all", "build", "ship", "pay"],
+        entities: ["ios-app", "android-app"],
+        flowInput: "输入：开发平台编译 / 打包后的客户端产物",
+        flowOutput: "产出：iOS App、安卓 App"
+      },
+      {
+        id: "g-miniapp",
+        x: 2470,
+        y: 180,
+        width: 360,
+        minHeight: 140,
+        title: "小程序",
+        tag: "微信生态里的用户界面",
+        description: "小程序是通过微信生态审核、发布并直接触达用户的一种产品形态。",
+        stages: ["all", "build", "ship"],
+        entities: ["miniapp"],
+        flowInput: "输入：开发平台生成的小程序代码和上传包",
+        flowOutput: "产出：可发布的小程序"
+      },
+      {
+        id: "g-pc",
+        x: 2470,
+        y: 900,
+        width: 360,
+        minHeight: 140,
+        title: "PC 软件",
+        tag: "桌面端用户界面",
+        description: "PC 软件通常通过官网下载安装，适合工具型和高频使用型产品。",
+        stages: ["all", "build", "ship"],
+        entities: ["desktop-app"],
+        flowInput: "输入：开发平台打包后的桌面端产物",
+        flowOutput: "产出：可下载安装的桌面软件"
+      },
+      {
+        id: "g-backend",
+        x: 1860,
+        y: 1080,
+        width: 380,
+        minHeight: 330,
+        title: "后端服务 / 数据库等",
+        tag: "规则和接口",
+        description: "后端服务通常是整个系统的核心，不只是 API，还包括鉴权、订单、管理后台、数据库、缓存、对象存储、日志、风控等很多关键能力。",
+        stages: ["all", "build", "deploy", "pay"],
+        entities: ["api-service", "auth-service", "order-service", "admin-panel", "antifraud", "sql-db", "redis", "object-storage", "log-store"],
+        flowInput: "输入：后端代码、业务规则",
+        flowOutput: "产出：API、订单、数据库、日志"
+      },
+      {
+        id: "g-model",
+        x: 1860,
+        y: 1560,
+        width: 380,
+        minHeight: 180,
+        title: "模型服务",
+        tag: "文本 / 图片 / 视频 / 语音",
+        description: "很多 AI 功能表面上是一个按钮，背后其实都要由后端去调用模型服务。",
+        stages: ["all", "build", "deploy"],
+        entities: ["model-text", "model-image", "model-video", "model-voice"],
+        flowInput: "输入：后端请求、Prompt、上下文、媒体数据",
+        flowOutput: "产出：文本、图片、视频、语音等 AI 结果"
+      },
+      {
+        id: "g-infra",
+        x: 1230,
+        y: 980,
+        width: 420,
+        minHeight: 220,
+        title: "后端服务托管平台 / 云平台",
+        tag: "源码怎么真正跑起来",
+        description: "这里主要指阿里云、AWS、Google Cloud 这类云平台。CI 会从代码托管平台拉取源码，在这里分别部署后端服务、数据库托管和文件托管。",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        entities: ["aliyun", "aws", "gcp"],
+        flowInput: "输入：仓库源码、构建任务",
+        flowOutput: "产出：在线网站、在线 API、托管数据库"
+      },
+      {
+        id: "g-registrar",
+        x: 2140,
+        y: 1760,
+        width: 360,
+        minHeight: 150,
+        title: "域名服务商",
+        tag: "网站的外部来源方",
+        description: "网站里的域名，通常需要从阿里云、GoDaddy、Namecheap 这类域名服务商处购买和管理。",
+        stages: ["all", "build", "deploy", "ship"],
+        entities: ["registrar"],
+        flowInput: "输入：域名购买申请",
+        flowOutput: "产出：域名所有权、DNS 管理"
+      },
+      {
+        id: "g-ca",
+        x: 2540,
+        y: 1760,
+        width: 360,
+        minHeight: 150,
+        title: "证书签发机构",
+        tag: "网站的外部来源方",
+        description: "网站里的 HTTPS 证书，需要向 Let's Encrypt、ZeroSSL 这类证书签发机构申请。",
+        stages: ["all", "build", "deploy", "ship"],
+        entities: ["ca"],
+        flowInput: "输入：证书签发申请",
+        flowOutput: "产出：可信 HTTPS 证书"
+      },
+      {
+        id: "g-accounts",
+        x: 430,
+        y: 130,
+        width: 330,
+        minHeight: 170,
+        title: "账号、资质",
+        tag: "账号、开发者、支付商户",
+        description: "做正式产品前，往往先要准备各种账号、开发者身份、支付商户和相关资质。",
+        stages: ["all", "ship", "pay"],
+        entities: ["apple-account", "google-console", "wechat-account", "china-android-console", "payment-merchant"],
+        flowInput: "输入：公司 / 个人主体、证件、收款与税务信息",
+        flowOutput: "产出：可上架身份、提审入口"
+      },
+      {
+        id: "g-compliance",
+        x: 810,
+        y: 130,
+        width: 620,
+        minHeight: 170,
+        title: "备案（国内）",
+        tag: "中国国内政府备案",
+        description: "国内上线前常见的是 ICP 备案、公安备案，部分场景还会涉及算法备案。一般服务托管在哪个平台，就从哪个平台后台发起备案。",
+        stages: ["all", "ship"],
+        columns: 3,
+        entities: ["filing-domain", "filing-miniapp", "filing-app", "filing-website", "filing-game", "filing-sms", "filing-algorithm"],
+        flowInput: "输入：主体资料、域名、应用信息、报备材料",
+        flowOutput: "产出：备案结果、备案号、可上线状态"
+      },
+      {
+        id: "g-release",
+        x: 1840,
+        y: 620,
+        width: 340,
+        minHeight: 200,
+        title: "应用市场",
+        tag: "产品最终去哪",
+        description: "App 端真正触达用户的是应用市场，而不是你本地机器上的安装包。",
+        stages: ["all", "ship", "pay"],
+        entities: ["app-store", "google-play", "china-android-markets"],
+        flowInput: "输入：安装包、审核资料、开发者身份",
+        flowOutput: "产出：用户可下载的正式发布版本"
+      },
+      {
+        id: "g-ops",
+        x: 765,
+        y: 1260,
+        width: 430,
+        minHeight: 170,
+        title: "登录",
+        tag: "国内外登录方式",
+        description: "大多数正式产品几乎都要先把登录打通。这里单独看国内和海外常见的登录方式。",
+        stages: ["all", "ship", "pay"],
+        entities: ["login-cn", "login-global"],
+        flowInput: "输入：用户身份体系、短信与第三方平台配置",
+        flowOutput: "产出：注册、登录、账号绑定能力"
+      },
+      {
+        id: "g-monetization",
+        x: 500,
+        y: 1520,
+        width: 470,
+        minHeight: 220,
+        title: "变现手段",
+        tag: "赚到钱的方式",
+        description: "先想清楚怎么赚钱，再决定产品里应该接哪些支付方式和权益模型。",
+        stages: ["all", "pay"],
+        entities: ["monetize-ads", "monetize-download", "monetize-paid", "monetize-iap", "monetize-subscription"],
+        flowInput: "输入：产品形态、定价策略、平台规则",
+        flowOutput: "产出：广告、下载付费、订阅、内购等变现路径"
+      },
+      {
+        id: "g-pay",
+        x: 1030,
+        y: 1520,
+        width: 520,
+        minHeight: 220,
+        title: "支付手段",
+        tag: "国内外支付通道",
+        description: "不同产品形态和不同地区，会用到不同的支付通道。支付手段解决的是钱怎么收进来。",
+        stages: ["all", "pay"],
+        entities: ["wechat-pay", "alipay", "apple-iap", "google-billing", "google-pay", "stripe", "paypal"],
+        flowInput: "输入：订单、金额、平台规则、支付账号",
+        flowOutput: "产出：支付结果、回调、订单状态"
+      },
+      {
+        id: "g-users",
+        x: 3040,
+        y: 650,
+        width: 220,
+        minHeight: 140,
+        title: "用户",
+        tag: "最终触达对象",
+        description: "无论是网站、App、小程序还是 PC 软件，最终都是为了被用户使用。",
+        stages: ["all", "ship", "pay"],
+        entities: ["users"],
+        flowInput: "输入：产品访问入口、下载入口、账号",
+        flowOutput: "产出：使用行为、反馈、付费"
+      }
+    ];
+
+    const entityMap = {
+      maker: {
+        title: "个人开发者 / 团队",
+        subtitle: "谁在主导产品",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["负责定义方向、取舍功能、看结果、做最终决策。"],
+        why: ["AI 可以写代码，但产品目标和商业判断还是要人来定。"],
+        relations: ["通常连接用户需求、AI 工具和发布决策。"]
+      },
+      workspace: {
+        title: "本地环境 / 工作区",
+        subtitle: "电脑、项目目录、账号权限",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["真实开发动作发生的地方，包括本地代码、环境变量、浏览器登录态和工具权限。"],
+        why: ["很多自动化、调试和发布动作都依赖这里的上下文。"],
+        relations: ["通常连接 AI 工具、开发平台和代码仓库。"]
+      },
+      cursor: {
+        title: "Cursor",
+        subtitle: "IDE 里的 AI 编程助手",
+        stages: ["all", "build"],
+        essence: ["直接在编辑器里改代码、看文件、跑局部修改。"],
+        why: ["很多真实编码动作都发生在 IDE 里。"],
+        relations: ["通常直接连到前端代码仓。"]
+      },
+      codex: {
+        title: "Codex",
+        subtitle: "代码型 AI 工具",
+        stages: ["all", "build"],
+        essence: ["可以读取仓库、修改代码、查看日志，并完成较完整的开发任务。"],
+        why: ["适合把编码、排查和实现工作放在同一个工具里连续处理。"],
+        relations: ["通常直接连到后端代码和仓库。"]
+      },
+      claude: {
+        title: "Claude Code",
+        subtitle: "代码型 AI 工具",
+        stages: ["all", "build"],
+        essence: ["可以用来读代码、分析问题、比较方案和辅助实现。"],
+        why: ["适合在编码之外，辅助做分析、解释和方案判断。"],
+        relations: ["经常和 PRD 或方案分析配合使用。"]
+      },
+      "market-analysis": {
+        title: "市场分析",
+        subtitle: "这个方向值不值得做",
+        stages: ["all", "build"],
+        essence: ["先判断市场大小、竞品情况和切入点，避免一开始就选错方向。"],
+        why: ["方向没选对，后面写再多代码也很难变成真正可用的产品。"],
+        relations: ["通常和需求分析、产品规划一起推进。"]
+      },
+      "demand-analysis": {
+        title: "需求分析",
+        subtitle: "用户到底痛在哪",
+        stages: ["all", "build"],
+        essence: ["把目标用户、使用场景、真实痛点和核心需求梳理清楚。"],
+        why: ["需求不清楚，AI 很容易一路写成功能堆。"],
+        relations: ["通常继续收束到产品规划和 PRD。"]
+      },
+      "product-plan": {
+        title: "产品规划",
+        subtitle: "方案、边界和文档沉淀",
+        stages: ["all", "build"],
+        essence: ["把做什么、不做什么、先做什么，以及关键流程都落到文档里。"],
+        why: ["很多问题不是 AI 不会写，而是一开始没有把产品规划讲清楚。"],
+        relations: ["通常把结论沉淀成文档，再交给 AI 工具继续实现。"]
+      },
+      "local-terminal": {
+        title: "本地终端",
+        subtitle: "启动服务、跑命令",
+        stages: ["all", "build", "deploy"],
+        essence: ["在本机启动服务、执行命令、查看实时输出。"],
+        why: ["很多开发和排查动作，第一步就是先在终端里把程序跑起来。"],
+        relations: ["通常和本地日志、数据库、开发服务一起使用。"]
+      },
+      "local-browser": {
+        title: "本地浏览器 / 客户端",
+        subtitle: "直接看页面和交互",
+        stages: ["all", "build", "deploy"],
+        essence: ["用浏览器或本地客户端直接验证页面、接口和交互行为。"],
+        why: ["很多问题只有真正点开页面、操作一遍才看得出来。"],
+        relations: ["通常和本地前后端服务、日志一起排查问题。"]
+      },
+      "local-beta-builds": {
+        title: "测试版 App / 软件",
+        subtitle: "先装到设备上试跑",
+        stages: ["all", "build", "deploy"],
+        essence: ["先打出测试版安装包，在真机或本机上提前验证 App、桌面软件和安装流程。"],
+        why: ["很多问题只有装到设备上真实跑一遍，才会暴露出来。"],
+        relations: ["通常和开发平台、本地日志、真机调试一起使用。"]
+      },
+      "local-logs": {
+        title: "本地日志",
+        subtitle: "控制台和运行日志",
+        stages: ["all", "build", "deploy"],
+        essence: ["在本机查看前端、后端和脚本的日志输出。"],
+        why: ["排查问题时，日志通常比盯着代码猜更快。"],
+        relations: ["通常和终端、浏览器、本地服务一起工作。"]
+      },
+      "local-db": {
+        title: "本地数据库 / 测试数据",
+        subtitle: "查数据和复现问题",
+        stages: ["all", "build", "deploy"],
+        essence: ["在本地准备测试数据、查库、复现接口和业务问题。"],
+        why: ["很多问题和真实数据状态有关，只看代码很难看出来。"],
+        relations: ["通常和后端服务、本地日志一起排查问题。"]
+      },
+      problem: {
+        title: "用户问题",
+        subtitle: "产品到底解决什么",
+        stages: ["all", "build"],
+        essence: ["先找到真实问题，产品才有继续做下去的基础。"],
+        why: ["没有问题定义，AI 会把产品一路写成空转功能堆。"],
+        relations: ["通常先连到产品定位。"]
+      },
+      positioning: {
+        title: "产品定位",
+        subtitle: "边界和取舍",
+        stages: ["all", "build"],
+        essence: ["定义做什么、不做什么，以及先服务谁。"],
+        why: ["定位一模糊，后面前端、后端和收费设计都会变乱。"],
+        relations: ["通常再向下连 PRD。"]
+      },
+      docs: {
+        title: "官方文档 / Context7",
+        subtitle: "第三方规则依据",
+        stages: ["all", "build", "ship", "pay"],
+        essence: ["给模型提供 SDK、平台规则和接口的真实来源。"],
+        why: ["支付和上架环节最怕模型想当然。"],
+        relations: ["常常会连到支付和平台发布规则。"]
+      },
+      prd: {
+        title: "PRD",
+        subtitle: "需求和边界",
+        stages: ["all", "build"],
+        essence: ["把需求、边界、流程写下来，给人和 AI 共用。"],
+        why: ["不落到文档里，后面会不断返工和重复解释。"],
+        relations: ["向下约束原型和代码实现。"]
+      },
+      prototype: {
+        title: "原型 / 流程图",
+        subtitle: "界面和流程先对齐",
+        stages: ["all", "build"],
+        essence: ["把页面流转和交互框架先画清楚。"],
+        why: ["能大幅减少 UI 返工。"],
+        relations: ["常常由设计工具产出，再进入前端实现。"]
+      },
+      pencil: {
+        title: "Pencil",
+        subtitle: "画布式设计工具",
+        stages: ["all", "build"],
+        essence: ["先把界面画在画布上，再翻译成实际前端。"],
+        why: ["比纯文字描述 UI 更不容易跑偏。"],
+        relations: ["最常连接原型。"]
+      },
+      "wechat-devtools": {
+        title: "微信开发者工具",
+        subtitle: "小程序开发平台",
+        stages: ["all", "build", "ship"],
+        essence: ["用来运行、调试、预览和上传微信小程序。"],
+        why: ["AI 写出的小程序代码，通常还要放进这里继续调试和上传。"],
+        relations: ["通常连接微信小程序产物和发布后台。"]
+      },
+      "android-studio": {
+        title: "Android Studio",
+        subtitle: "安卓开发平台",
+        stages: ["all", "build", "ship"],
+        essence: ["用来运行、调试、构建和打包安卓应用。"],
+        why: ["安卓代码要真正变成可安装包，通常离不开它。"],
+        relations: ["通常连接安卓 App 产物。"]
+      },
+      xcode: {
+        title: "Xcode",
+        subtitle: "iOS 开发平台",
+        stages: ["all", "build", "ship"],
+        essence: ["用来运行、调试、签名和构建 iOS 应用。"],
+        why: ["iOS 代码要真正打成包、签名、提审，通常都要经过这里。"],
+        relations: ["通常连接 iOS App 产物。"]
+      },
+      hbuilder: {
+        title: "HBuilder / HBuilderX",
+        subtitle: "跨端开发平台",
+        stages: ["all", "build", "ship"],
+        action: ["为了减少开发成本，可以采用 uni-app 这类一套代码多端运行的开发框架，HBuilder / HBuilderX 就是这类跨端工程常见的开发工具。它主要用来继续调试、运行、预览和打包小程序、App 等产物。"],
+        input: ["AI 生成的 uni-app、小程序或其他跨端工程代码。"],
+        output: ["调试后的跨端工程，以及可继续发布的小程序、App、网页等形态。"],
+        essence: ["用来调试 uniapp、小程序和部分跨端应用工程。"],
+        why: ["很多跨端工程需要在这里继续调试、运行和打包。"],
+        relations: ["通常连接小程序和 App 产物。"]
+      },
+      "frontend-code": {
+        title: "前端代码",
+        subtitle: "页面、组件、交互",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["把原型变成官网、Web、App、小程序、桌面端。"],
+        why: ["用户最终感知到的大部分东西都来自这里。"],
+        relations: ["向下长出各种前端载体。"]
+      },
+      "backend-code": {
+        title: "后端代码",
+        subtitle: "规则、接口、业务",
+        stages: ["all", "build", "deploy", "pay"],
+        essence: ["把业务规则真正变成后端服务和数据结构。"],
+        why: ["订单、登录、权限、支付回调都在这里。"],
+        relations: ["向下长出 API、鉴权、订单和后台。"]
+      },
+      github: {
+        title: "GitHub",
+        subtitle: "代码托管平台",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["代码最终托管在这里，方便协作、回滚和触发自动化。"],
+        why: ["AI 改坏代码时，你需要随时能回到稳定版本。"],
+        relations: ["向下连接 Actions 和部署平台。"]
+      },
+      gitlab: {
+        title: "GitLab",
+        subtitle: "代码托管平台",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["另一类常见的代码托管和 CI 平台。"],
+        why: ["有些团队会把代码托管、权限管理和流水线都放在这里。"],
+        relations: ["通常和 GitHub 一样承担仓库与流水线角色。"]
+      },
+      actions: {
+        title: "GitHub Actions",
+        subtitle: "自动构建和部署",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["提交代码后自动跑构建、测试和部署。"],
+        why: ["正式产品迟早要自动发布，而不是手工拷文件。"],
+        relations: ["经常拉取 GitHub 代码去发版。"]
+      },
+      website: {
+        title: "官网",
+        subtitle: "品牌和说明入口",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["展示产品、承接搜索流量、建立信任感。"],
+        why: ["很多用户第一次认识产品就是从官网开始。"],
+        relations: ["通常会包含下载页，并连到域名和 CDN。"]
+      },
+      "docs-site": {
+        title: "文档站",
+        subtitle: "帮助、教程、API 文档",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["单独承接帮助中心、教程和接口文档。"],
+        why: ["复杂产品通常会长出独立的文档站。"],
+        relations: ["常常和官网共用域名体系与前端部署链。"]
+      },
+      "pricing-page": {
+        title: "定价页",
+        subtitle: "套餐、权益、CTA",
+        stages: ["all", "build", "ship", "pay"],
+        essence: ["专门负责解释套餐、价格和付费价值。"],
+        why: ["正式产品经常需要单独优化定价转化。"],
+        relations: ["通常连到官网、Web App 和支付。"]
+      },
+      "landing-page": {
+        title: "下载页 / Landing Page",
+        subtitle: "转化和下载承接",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["专门负责转化、下载和安装指引的页面。"],
+        why: ["官网不一定承担所有转化任务，下载页往往单独存在。"],
+        relations: ["常常挂在官网下，服务于桌面端或 App 下载。"]
+      },
+      webapp: {
+        title: "Web App",
+        subtitle: "真正可用的网页产品",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["不仅是介绍页，而是用户真正使用的网页应用。"],
+        why: ["很多产品先从 Web 跑通，再扩到其他端。"],
+        relations: ["通常直接连 API、域名和 Web 支付。"]
+      },
+      "ios-app": {
+        title: "iOS App",
+        subtitle: "苹果客户端",
+        stages: ["all", "build", "ship", "pay"],
+        essence: ["跑在 iPhone / iPad 上的正式客户端。"],
+        why: ["iOS 带来审核、签名和 IAP 规则。"],
+        relations: ["通常连到 App Store 和 Apple IAP。"]
+      },
+      "android-app": {
+        title: "Android App",
+        subtitle: "安卓客户端",
+        stages: ["all", "build", "ship", "pay"],
+        essence: ["可以面向国内安卓市场，也可以走 Google Play。"],
+        why: ["国内外安卓分发链路并不相同。"],
+        relations: ["通常连到国内安卓市场和 Google Play。"]
+      },
+      miniapp: {
+        title: "微信小程序",
+        subtitle: "平台内轻量产品",
+        stages: ["all", "build", "ship"],
+        essence: ["依托微信生态的产品形态。"],
+        why: ["它有自己独立的平台规则和审核流程。"],
+        relations: ["通常连到微信开放平台和小程序发布后台。"]
+      },
+      "desktop-app": {
+        title: "桌面软件",
+        subtitle: "Mac / Windows 工具",
+        stages: ["all", "build", "ship"],
+        essence: ["适合工具型、重度使用型产品的前端形态。"],
+        why: ["有些产品在桌面端的体验明显更好。"],
+        relations: ["往往通过官网下载页分发。"]
+      },
+      "apple-account": {
+        title: "苹果账号",
+        subtitle: "Apple Developer + App Store Connect",
+        stages: ["all", "ship", "pay"],
+        essence: ["苹果链路里最常接触的两个后台，通常是一整组在使用：开发者身份、证书签名、版本管理、截图、审核和定价。"],
+        why: ["做 iOS 发布时，大家实际接触到的往往不是两个完全独立的概念，而是一整套苹果账号体系。"],
+        relations: ["展开看会包含 Apple Developer 和 App Store Connect，并最终连到 App Store。"]
+      },
+      "apple-dev": {
+        title: "Apple Developer",
+        subtitle: "苹果开发者账号",
+        stages: ["all", "ship", "pay"],
+        essence: ["iOS 上架和证书相关操作的身份入口。"],
+        why: ["没有这个账号，就没有 iOS 发布资格。"],
+        relations: ["通常连到 App Store。"]
+      },
+      "app-store-connect": {
+        title: "App Store Connect",
+        subtitle: "iOS 版本和元数据后台",
+        stages: ["all", "ship", "pay"],
+        essence: ["管理 iOS 版本、截图、审核材料、定价和元数据。"],
+        why: ["苹果发布链里的很多实际操作都在这里完成。"],
+        relations: ["通常连到 App Store。"]
+      },
+      "google-console": {
+        title: "Google Play Console",
+        subtitle: "海外安卓后台",
+        stages: ["all", "ship", "pay"],
+        essence: ["管理 Google Play 发布、审核和 Billing。"],
+        why: ["海外安卓发布链路离不开它。"],
+        relations: ["通常连到 Google Play。"]
+      },
+      "wechat-account": {
+        title: "微信账号",
+        subtitle: "微信开放平台 + 小程序账号",
+        stages: ["all", "ship"],
+        essence: ["微信相关发布常常要同时面对开放平台和小程序账号本身：主体、类目、版本、审核、管理权限都在这套体系里。"],
+        why: ["实际做小程序发布时，大家接触到的是整套微信账号体系，不是单一后台。"],
+        relations: ["展开看会包含微信开放平台和微信小程序账号，并最终连到小程序发布后台。"]
+      },
+      "wechat-open": {
+        title: "微信开放平台",
+        subtitle: "小程序开发者身份",
+        stages: ["all", "ship"],
+        essence: ["微信生态内的小程序和相关能力入口。"],
+        why: ["没有平台身份，小程序发不出去。"],
+        relations: ["通常连到微信小程序发布后台。"]
+      },
+      "wechat-miniapp-account": {
+        title: "微信小程序账号",
+        subtitle: "小程序主体与管理身份",
+        stages: ["all", "ship"],
+        essence: ["微信小程序正式提交审核和发布时，常常还要直接面对小程序账号本身的主体、类目和管理配置。"],
+        why: ["很多人会把开放平台和小程序账号混在一起，但实际使用中这是一个高频接触的独立概念。"],
+        relations: ["通常和微信小程序发布后台、主体资质、小程序审核相关。"]
+      },
+      "china-android-console": {
+        title: "国内安卓开发者账号",
+        subtitle: "华为 / 小米 / OPPO / vivo / 应用宝等",
+        stages: ["all", "ship"],
+        essence: ["国内安卓往往不是一个统一后台，而是一组厂商和渠道开发者账号。"],
+        why: ["做国内安卓发布时，通常要同时管理多个市场身份。"],
+        relations: ["通常连到国内安卓应用市场。"]
+      },
+      "payment-merchant": {
+        title: "支付商户",
+        subtitle: "微信支付 / 支付宝 / Stripe 等商户身份",
+        stages: ["all", "pay"],
+        essence: ["产品要正式收钱，通常还要单独准备支付商户账号、收款主体和结算信息。"],
+        why: ["没有商户身份，很多支付方式即使技术接好了也无法真正收款。"],
+        relations: ["通常和支付手段、公司主体、税务与结算配置相关。"]
+      },
+      "app-store": {
+        title: "App Store",
+        subtitle: "iOS 正式发布渠道",
+        stages: ["all", "ship", "pay"],
+        essence: ["iOS 用户真正下载和购买的地方。"],
+        why: ["iOS 上架审核和 IAP 都绕不过这里。"],
+        relations: ["通常接收 iOS App，并连到 Apple IAP。"]
+      },
+      "google-play": {
+        title: "Google Play",
+        subtitle: "海外安卓分发",
+        stages: ["all", "ship", "pay"],
+        essence: ["海外安卓最重要的官方分发渠道。"],
+        why: ["发布、审核和 Billing 都在这条链上。"],
+        relations: ["通常接收 Android App，并连到 Google Billing。"]
+      },
+      "china-android-markets": {
+        title: "国内安卓应用市场",
+        subtitle: "华为 / 小米 / OPPO / vivo / 应用宝等",
+        stages: ["all", "ship"],
+        essence: ["国内安卓通常要分发到多个厂商和渠道市场，而不是一个统一入口。"],
+        why: ["这条链路和 Google Play 完全不同，通常要多市场并行处理。"],
+        relations: ["通常接收 Android App 和国内安卓开发者账号。"]
+      },
+      "filing-domain": {
+        title: "域名",
+        subtitle: "ICP备案 / 域名备案",
+        stages: ["all", "ship"],
+        essence: ["网站正式对外服务前，域名往往涉及备案、实名认证和 DNS 配置等要求。"],
+        why: ["很多网站链路最先卡住的就是域名和备案。"],
+        relations: ["通常和网站、域名服务商、备案主体相关。"]
+      },
+      "filing-miniapp": {
+        title: "小程序",
+        subtitle: "小程序备案",
+        stages: ["all", "ship"],
+        essence: ["小程序正式上线前，通常还要完成国内政府侧要求的小程序备案。"],
+        why: ["没有完成备案，后续上线和合规都会受影响。"],
+        relations: ["通常和小程序主体、备案平台、后端服务信息相关。"]
+      },
+      "filing-app": {
+        title: "APP",
+        subtitle: "App 备案",
+        stages: ["all", "ship"],
+        essence: ["App 在中国国内正式上线前，通常也要完成 App 备案等政府侧要求。"],
+        why: ["这是产品正式上线和持续运营的一类基础合规要求。"],
+        relations: ["通常和应用主体、后端服务信息、备案平台相关。"]
+      },
+      "filing-website": {
+        title: "网站",
+        subtitle: "网站备案",
+        stages: ["all", "ship"],
+        essence: ["网站正式上线前，通常要完成ICP备案、公安备案等国内政府侧要求。"],
+        why: ["网站是最常见也最容易被忽视的一条备案链路。"],
+        relations: ["通常和域名、证书、备案主体、网站本身相关。"]
+      },
+      "filing-game": {
+        title: "游戏",
+        subtitle: "游戏版号 / 备案",
+        stages: ["all", "ship"],
+        essence: ["游戏类产品通常还会涉及版号等更重的国内监管和备案要求。"],
+        why: ["游戏不是普通应用的合规逻辑，要求通常更高。"],
+        relations: ["通常和版号、监管要求、主体资质相关。"]
+      },
+      "filing-sms": {
+        title: "短信",
+        subtitle: "短信签名 / 模板报备",
+        stages: ["all", "ship"],
+        essence: ["短信验证码和通知短信，通常要处理签名、模板、主体资质和通道报备。"],
+        why: ["登录、注册和通知功能很容易卡在短信资质和报备这一步。"],
+        relations: ["通常和登录服务、短信平台、主体资质相关。"]
+      },
+      "filing-algorithm": {
+        title: "算法",
+        subtitle: "算法备案",
+        stages: ["all", "ship"],
+        essence: ["如果产品涉及推荐、生成、排序等能力，可能还要处理算法备案这类政府侧要求。"],
+        why: ["AI 产品和内容分发产品越来越容易碰到这条线。"],
+        relations: ["通常和产品能力、监管要求、主体备案相关。"]
+      },
+      "wechat-release": {
+        title: "小程序后台",
+        subtitle: "提交审核和发布",
+        stages: ["all", "ship"],
+        essence: ["微信小程序最终提交审核和发布的地方。"],
+        why: ["这是小程序真正对外可见的发布渠道。"],
+        relations: ["通常接收微信小程序和微信开放平台身份。"]
+      },
+      "api-service": {
+        title: "API 服务",
+        subtitle: "前后端交互入口",
+        stages: ["all", "build", "deploy", "pay"],
+        essence: ["前端通过网络访问它，拿数据、提交动作。"],
+        why: ["没有 API，前端和后端只能各自为政。"],
+        relations: ["通常往下连数据库、存储和日志。"]
+      },
+      "auth-service": {
+        title: "鉴权服务",
+        subtitle: "登录和身份识别",
+        stages: ["all", "build", "deploy", "pay"],
+        essence: ["决定你如何识别用户、颁发会话和绑定权益。"],
+        why: ["一旦涉及支付，就必须先识别用户。"],
+        relations: ["通常连缓存和权益系统。"]
+      },
+      "order-service": {
+        title: "订单服务",
+        subtitle: "支付和回调核心",
+        stages: ["all", "pay"],
+        essence: ["负责创建订单、处理支付回调、退款和补偿。"],
+        why: ["商业化真正容易出问题的地方就在这里。"],
+        relations: ["通常连支付通道、数据库和客服。"]
+      },
+      "admin-panel": {
+        title: "管理后台",
+        subtitle: "运营和排障入口",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["产品给自己人使用的配置和排查界面。"],
+        why: ["没有后台，很多线上问题只能手工改库。"],
+        relations: ["通常通过 API 去操作业务数据。"]
+      },
+      "sql-db": {
+        title: "SQL 数据库",
+        subtitle: "用户、订单、内容",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["保存核心业务数据和对象关系。"],
+        why: ["用户、订单和配置最终都要落到库里。"],
+        relations: ["通常连接 API、订单服务和分析。"]
+      },
+      redis: {
+        title: "Redis",
+        subtitle: "缓存 / 会话 / 限流",
+        stages: ["all", "build", "deploy", "pay"],
+        essence: ["高频读写、登录态、限流常常会放在这里。"],
+        why: ["鉴权和风控很容易依赖缓存层。"],
+        relations: ["通常跟鉴权服务走得最近。"]
+      },
+      "object-storage": {
+        title: "对象存储",
+        subtitle: "图片、音频、安装包",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["放数据库不适合存的大文件。"],
+        why: ["上传文件、资源素材、安装包都要有地方放。"],
+        relations: ["通常连接 API 和云存储托管。"]
+      },
+      "log-store": {
+        title: "日志存储",
+        subtitle: "排障证据链",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["把前端、后端、支付和部署日志都沉淀下来。"],
+        why: ["前端错误如果不上报，很多问题根本查不到；前后端日志还要靠同一个日志 ID 串起来，排查才高效。"],
+        relations: ["通常向客服、排障和问题追踪供给证据。"]
+      },
+      "model-text": {
+        title: "文本模型",
+        subtitle: "对话 / 生成 / 改写 / 总结",
+        stages: ["all", "build", "deploy"],
+        essence: ["处理问答、写作、改写、总结、分类、抽取等文本任务。"],
+        why: ["很多 AI 产品最先接入的就是文本能力。"],
+        relations: ["通常由后端服务调用，再把结果返回给前端。"]
+      },
+      "model-image": {
+        title: "图片模型",
+        subtitle: "生成 / 编辑 / 理解图片",
+        stages: ["all", "build", "deploy"],
+        essence: ["处理图片生成、编辑、识别和理解等任务。"],
+        why: ["只要产品里涉及图片生成或看图理解，就会用到这类模型。"],
+        relations: ["通常由后端服务调用，并和对象存储配合使用。"]
+      },
+      "model-video": {
+        title: "视频模型",
+        subtitle: "生成 / 剪辑 / 理解视频",
+        stages: ["all", "build", "deploy"],
+        essence: ["处理视频生成、视频理解、摘要和剪辑辅助等任务。"],
+        why: ["视频能力更重，通常都由后端统一调度。"],
+        relations: ["通常由后端服务调用，并和对象存储配合使用。"]
+      },
+      "model-voice": {
+        title: "语音模型",
+        subtitle: "识别 / 合成 / 理解语音",
+        stages: ["all", "build", "deploy"],
+        essence: ["处理语音识别、语音合成、说话人识别和语音理解等任务。"],
+        why: ["只要产品里有语音输入输出，这类模型几乎绕不过去。"],
+        relations: ["通常由后端服务调用，并和音频文件存储配合使用。"]
+      },
+      vercel: {
+        title: "Vercel / Netlify",
+        subtitle: "前端部署平台",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["承载官网、文档站、定价页、Landing Page 这类前端部署。"],
+        why: ["前端部署链通常和后端部署链不同。"],
+        relations: ["常常直接从 GitHub 拉取代码。"]
+      },
+      aliyun: {
+        title: "阿里云",
+        subtitle: "云平台",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["国内常见的云平台选择，可以承载服务、数据库、存储和网络资源。"],
+        why: ["很多面向中文用户的产品会优先考虑它。"],
+        relations: ["通常承载后端服务、数据库和对象存储。"]
+      },
+      aws: {
+        title: "AWS",
+        subtitle: "云平台",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["全球常见的云平台选择，可承载计算、数据库、存储和网络服务。"],
+        why: ["做海外产品时经常会遇到它。"],
+        relations: ["通常承载后端服务、数据库和对象存储。"]
+      },
+      gcp: {
+        title: "Google Cloud",
+        subtitle: "云平台",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["Google 的云平台，常见于 Cloud Run、Cloud SQL 等部署链路。"],
+        why: ["和 AI 自动运维、CLI 结合时很顺手。"],
+        relations: ["通常承载后端服务、数据库和对象存储。"]
+      },
+      "cloud-run": {
+        title: "Cloud Run",
+        subtitle: "托管后端服务",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["承载 API 等容器化服务。"],
+        why: ["后端代码最终要在某个计算平台上跑起来。"],
+        relations: ["通常由 GitHub Actions 触发部署。"]
+      },
+      "cloud-sql": {
+        title: "Cloud SQL / RDS",
+        subtitle: "托管数据库实例",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["把 SQL 数据库托管到云上。"],
+        why: ["数据库也需要独立运行环境和运维。"],
+        relations: ["通常承载 SQL 数据库。"]
+      },
+      "cloud-storage": {
+        title: "Cloud Storage / OSS",
+        subtitle: "托管文件资源",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["把对象存储真正托管到云平台上。"],
+        why: ["文件资源要有稳定的线上存放位置。"],
+        relations: ["通常承载对象存储。"]
+      },
+      cloudflare: {
+        title: "Cloudflare / CDN",
+        subtitle: "静态资源和边缘分发",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["负责官网、静态资源和加速分发。"],
+        why: ["Web 产品的访问体验很大程度取决于这一层。"],
+        relations: ["通常接官网、下载页和域名。"]
+      },
+      domain: {
+        title: "域名",
+        subtitle: "产品门牌号",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["让用户能通过稳定地址找到官网和 API。"],
+        why: ["没有域名，产品很难形成正式入口。"],
+        relations: ["通常再向下连 DNS 和证书。"]
+      },
+      dns: {
+        title: "域名",
+        subtitle: "把域名指向服务",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["负责把域名解析到 CDN、服务器或其他目标。"],
+        why: ["域名买完并不会自动可用，还要有解析。"],
+        relations: ["通常连到域名服务商。"]
+      },
+      "tls-cert": {
+        title: "TLS 证书",
+        subtitle: "HTTPS 身份证明",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["让官网和 API 能安全地以 HTTPS 提供服务。"],
+        why: ["没有证书，浏览器和 App 都会提示不安全。"],
+        relations: ["通常连到证书签发机构。"]
+      },
+      registrar: {
+        title: "域名服务商",
+        subtitle: "阿里云 / GoDaddy / Namecheap",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["购买和管理域名的地方。"],
+        why: ["域名必须先从服务商那里获得。"],
+        relations: ["通常向 DNS 和域名提供来源。"]
+      },
+      ca: {
+        title: "证书签发机构",
+        subtitle: "Let's Encrypt / ZeroSSL",
+        stages: ["all", "build", "deploy", "ship"],
+        essence: ["给网站或服务签发 TLS 证书。"],
+        why: ["证书需要可信签发方。"],
+        relations: ["通常向 TLS 证书提供来源。"]
+      },
+      "wechat-pay": {
+        title: "微信支付",
+        subtitle: "国内常见通道",
+        stages: ["all", "pay"],
+        essence: ["Web 或小程序常见的支付方式之一。"],
+        why: ["面向中文用户时经常绕不过它。"],
+        relations: ["通常由订单服务接入。"]
+      },
+      alipay: {
+        title: "支付宝",
+        subtitle: "国内常见通道",
+        stages: ["all", "pay"],
+        essence: ["Web 商业化里经常需要的另一条通道。"],
+        why: ["很多国内用户会直接期待它。"],
+        relations: ["通常由订单服务接入。"]
+      },
+      stripe: {
+        title: "Stripe",
+        subtitle: "海外 Web 支付",
+        stages: ["all", "pay"],
+        essence: ["面向海外 Web 支付时最常见的方案之一。"],
+        why: ["做海外 SaaS 或 Web 商业化经常会用到。"],
+        relations: ["通常由订单服务接入。"]
+      },
+      paypal: {
+        title: "PayPal",
+        subtitle: "海外常见支付方式",
+        stages: ["all", "pay"],
+        essence: ["很多海外用户仍然熟悉并信任 PayPal。"],
+        why: ["做海外支付时，经常会和 Stripe 一起被拿来比较或并行接入。"],
+        relations: ["通常由订单服务或网站支付页接入。"]
+      },
+      "apple-iap": {
+        title: "Apple IAP",
+        subtitle: "iOS 内购",
+        stages: ["all", "pay"],
+        essence: ["iOS 应用内购买的官方支付方式。"],
+        why: ["iOS 商业化很多场景必须走它。"],
+        relations: ["通常连 App Store、订阅或 App 内购场景。"]
+      },
+      "google-billing": {
+        title: "Google Play Billing",
+        subtitle: "海外安卓内购",
+        stages: ["all", "pay"],
+        essence: ["Google Play 内购体系。"],
+        why: ["海外安卓应用内支付通常走这一条。"],
+        relations: ["通常连 Google Play 和 App 内购场景。"]
+      },
+      "google-pay": {
+        title: "Google Pay",
+        subtitle: "海外支付方式",
+        stages: ["all", "pay"],
+        essence: ["Google 生态里的支付方式之一，适合部分 Web 或移动端支付场景。"],
+        why: ["面向海外用户时，它是值得单独考虑的一条支付手段。"],
+        relations: ["通常和网站、Android 端或海外支付流程关联。"]
+      },
+      "login-cn": {
+        title: "登录服务（国内）",
+        subtitle: "短信、邮箱、微信、苹果等",
+        stages: ["all", "ship", "pay"],
+        essence: ["面向国内用户常见的登录方式，包括短信、邮箱、微信和苹果等。"],
+        why: ["很多产品上线后第一步就是把用户身份体系接好。"],
+        relations: ["通常由后端接入，再提供给网站、App、小程序。"]
+      },
+      "login-global": {
+        title: "登录服务（国外）",
+        subtitle: "短信、邮箱、Google、Apple、Microsoft、社交账号等",
+        stages: ["all", "ship", "pay"],
+        essence: ["面向海外用户常见的登录方式，包括短信验证码、邮箱、Google、Apple、Microsoft，以及其他社交平台账号登录。"],
+        why: ["海外产品往往需要和本地用户习惯匹配。"],
+        relations: ["通常由后端接入，再提供给网站、App 等。"]
+      },
+      "monetize-ads": {
+        title: "广告",
+        subtitle: "流量变现",
+        stages: ["all", "pay"],
+        essence: ["通过展示广告、激励广告等方式，把流量转成收入。"],
+        why: ["适合免费产品或低门槛拉新的场景。"],
+        relations: ["通常和 App、小程序、网站的使用时长与流量规模相关。"]
+      },
+      "monetize-download": {
+        title: "App 下载付费",
+        subtitle: "先付费再下载",
+        stages: ["all", "pay"],
+        essence: ["用户先付费，再获得安装或下载资格。"],
+        why: ["适合某些工具软件或内容产品。"],
+        relations: ["通常和应用市场定价体系相关。"]
+      },
+      "monetize-paid": {
+        title: "单次付费购买",
+        subtitle: "一次买断",
+        stages: ["all", "pay"],
+        essence: ["用户付费一次，获得某个功能、内容或服务。"],
+        why: ["比订阅更容易理解，适合单点购买场景。"],
+        relations: ["通常和网站支付页、订单系统有关。"]
+      },
+      "monetize-iap": {
+        title: "App 内购",
+        subtitle: "应用内购买",
+        stages: ["all", "pay"],
+        essence: ["用户在 App 内直接购买功能、虚拟物品或会员。"],
+        why: ["App 商业化里很常见，而且通常受平台规则约束。"],
+        relations: ["通常对应 Apple IAP 或 Google Play Billing。"]
+      },
+      "monetize-subscription": {
+        title: "订阅购买",
+        subtitle: "App / 网站内部订阅",
+        stages: ["all", "pay"],
+        essence: ["用户按月、按年持续付费，获得持续服务或权益。"],
+        why: ["SaaS、会员制内容和工具类产品经常采用这条路线。"],
+        relations: ["通常和网站支付、App 内购、权益发放相关。"]
+      },
+      rights: {
+        title: "权益系统",
+        subtitle: "会员、额度、解锁",
+        stages: ["all", "pay"],
+        essence: ["用户付费后，真正发放给用户的东西。"],
+        why: ["支付成功但权益没到账，是很常见的事故。"],
+        relations: ["通常连鉴权、支付和分析。"]
+      },
+      analytics: {
+        title: "数据分析",
+        subtitle: "看留存和转化",
+        stages: ["all", "ship", "pay"],
+        essence: ["把使用行为、订单和转化汇总起来。"],
+        why: ["商业化上线后，优化要靠数据而不是猜。"],
+        relations: ["通常吃数据库和权益数据。"]
+      },
+      support: {
+        title: "客服 / 运营",
+        subtitle: "处理异常和反馈",
+        stages: ["all", "ship", "pay"],
+        essence: ["对接退款、投诉、补单、解释和人工排查。"],
+        why: ["没有客服闭环，线上问题只会越来越乱。"],
+        relations: ["通常连订单服务和日志存储。"]
+      },
+      antifraud: {
+        title: "风控",
+        subtitle: "敏感词检测 / 防刷 / 防滥用",
+        stages: ["all", "build", "deploy", "ship", "pay"],
+        essence: ["识别敏感词、异常提交、异常注册、异常支付和滥用行为。"],
+        why: ["国内产品尤其要认真检查用户提交内容，很多风险不是付费后才出现。"],
+        relations: ["通常连鉴权、订单、内容审核和日志。"]
+      },
+      users: {
+        title: "用户",
+        subtitle: "最终使用产品的人",
+        stages: ["all", "ship", "pay"],
+        essence: ["小程序、App、PC 软件、网站最终都要面向真实用户。"],
+        why: ["整张图里所有开发、发布、支付动作，最终都是为了触达并服务用户。"],
+        relations: ["通常连接所有用户可见的产品形态。"]
+      }
+    };
+
+    const entityDetailOverrides = {
+      maker: {
+        action: ["AI 时代一个人也能拉起产品，但方向、取舍和最终拍板还是要由开发者自己来做。"],
+        input: ["产品想法、用户反馈、时间和资源约束。"],
+        output: ["需求判断、开发指令和最终发布决定。"]
+      },
+      cursor: {
+        action: ["Cursor 主要用来在 IDE 里一边看代码一边让 AI 直接改前端、组件和页面细节。"],
+        input: ["当前仓库代码、页面需求和修改指令。"],
+        output: ["改好的代码片段、组件调整和局部实现结果。"]
+      },
+      codex: {
+        action: ["Codex 是一种代码型 AI 工具，可以读取仓库、修改代码、查看日志，并协助完成较完整的开发任务。"],
+        input: ["任务目标、仓库上下文、日志和现有实现。"],
+        output: ["可运行的代码修改、排查结果和下一步实现。"]
+      },
+      claude: {
+        action: ["Claude Code 也是一种代码型 AI 工具，可以用来读代码、分析问题、比较方案和辅助实现。"],
+        input: ["问题描述、代码上下文和待比较的方案。"],
+        output: ["补充分析、替代方案和疑难问题的解法。"]
+      },
+      github: {
+        action: ["GitHub 是代码真正落盘和协作的地方，AI 生成的代码最终应该先存到这里。"],
+        input: ["AI 生成的源码、人工修改、提交记录。"],
+        output: ["可追踪仓库、版本历史和可触发的 CI 流水线。"]
+      },
+      gitlab: {
+        action: ["GitLab 和 GitHub 类似，也是代码托管、权限管理和流水线触发的平台。"],
+        input: ["源码、提交记录和团队权限配置。"],
+        output: ["可追踪仓库、CI 任务和发布流水线。"]
+      },
+      "wechat-devtools": {
+        action: ["微信开发者工具就是拿来调试、预览、真机运行和上传小程序代码的。"],
+        input: ["AI 生成的小程序工程代码。"],
+        output: ["调试结果、上传包，以及可提交审核的小程序版本。"]
+      },
+      "android-studio": {
+        action: ["Android Studio 主要用来继续调试、运行、构建和打包安卓应用。"],
+        input: ["AI 生成的 Android 工程代码。"],
+        output: ["可调试的安卓工程，以及 APK / AAB 等包体。"]
+      },
+      xcode: {
+        action: ["Xcode 是 iOS 开发和打包的核心工具，用来调试、签名、构建和准备提审。"],
+        input: ["AI 生成的 iOS 工程代码和签名配置。"],
+        output: ["可调试的 iOS 工程，以及可测试、可提审的包体。"]
+      },
+      "frontend-code": {
+        action: ["前端代码负责把想法真正变成用户看得见、点得到、能使用的页面和客户端。"],
+        input: ["PRD、原型、设计稿和 AI 编程指令。"],
+        output: ["官网、Web、App、小程序和桌面端的实际界面。"]
+      },
+      "backend-code": {
+        action: ["后端代码负责把业务规则、接口、登录、订单和数据处理真正实现出来。"],
+        input: ["产品规则、数据库设计和接口需求。"],
+        output: ["后端服务、接口逻辑、订单能力和数据处理逻辑。"]
+      },
+      website: {
+        action: ["官网主要用来介绍产品、承接搜索流量、建立信任，并给下载和转化提供入口。"],
+        input: ["产品介绍文案、品牌信息和前端页面代码。"],
+        output: ["用户可访问的官网入口，以及信任和转化承接页。"]
+      },
+      "docs-site": {
+        action: ["文档站用来承接教程、帮助中心和 API 文档，让用户和开发者知道怎么用你的产品。"],
+        input: ["使用说明、接口文档和帮助内容。"],
+        output: ["可访问的帮助文档和教程页面。"]
+      },
+      "pricing-page": {
+        action: ["定价页用来解释套餐、权益和价格，是用户决定是否付费的重要页面。"],
+        input: ["套餐设计、价格信息和权益说明。"],
+        output: ["可对外展示并引导付费的定价页面。"]
+      },
+      "landing-page": {
+        action: ["下载页或 Landing Page 用来承接广告流量、解释价值，并把用户导向下载或注册。"],
+        input: ["推广文案、下载链接和转化目标。"],
+        output: ["可用于转化、下载或安装引导的页面。"]
+      },
+      webapp: {
+        action: ["Web App 是用户真正在线使用功能的网页产品，不只是一个介绍页。"],
+        input: ["前端代码、后端接口和登录 / 支付能力。"],
+        output: ["可直接在浏览器里使用的在线产品。"]
+      },
+      "ios-app": {
+        action: ["iOS App 是最终交付给 iPhone / iPad 用户使用的正式客户端。"],
+        input: ["iOS 工程代码、签名信息和提审包体。"],
+        output: ["可在 App Store 测试、审核和发布的 iOS 应用。"]
+      },
+      "android-app": {
+        action: ["Android App 是最终交付给安卓用户使用的正式客户端，可以走国内市场或 Google Play。"],
+        input: ["Android 工程代码和打包产物。"],
+        output: ["可在国内安卓市场或 Google Play 发布的安卓应用。"]
+      },
+      miniapp: {
+        action: ["微信小程序是依托微信生态运行的一种轻量产品形态，适合快速触达用户。"],
+        input: ["小程序工程代码和上传包。"],
+        output: ["可在微信里审核、发布和使用的小程序。"]
+      },
+      "desktop-app": {
+        action: ["桌面软件适合做高频工具类产品，通常面向 Mac 或 Windows 用户。"],
+        input: ["桌面端工程代码和打包配置。"],
+        output: ["可下载安装到电脑上的桌面应用。"]
+      },
+      "apple-account": {
+        action: ["苹果账号是一整套 iOS 发布身份，用来做签名、版本管理、提审、定价和内购配置。"],
+        input: ["公司主体信息、苹果开发者资格和应用版本资料。"],
+        output: ["可提审、可签名、可配置内购的苹果发布能力。"]
+      },
+      "google-console": {
+        action: ["Google Play Console 用来管理海外安卓的发布、审核、定价和 Billing。"],
+        input: ["安卓包体、应用资料和开发者身份。"],
+        output: ["可在 Google Play 提审和发布的应用版本。"]
+      },
+      "wechat-account": {
+        action: ["微信账号体系用来管理小程序主体、开放平台能力、版本、审核和管理权限。"],
+        input: ["公司主体信息、小程序资料和微信平台配置。"],
+        output: ["可提交微信审核、发布和接入平台能力的小程序身份。"]
+      },
+      "china-android-console": {
+        action: ["国内安卓开发者账号是一组厂商市场后台，用来提交华为、小米、OPPO、vivo、应用宝等市场。"],
+        input: ["公司主体资料、应用资料和包体信息。"],
+        output: ["可在多个国内安卓市场提审和上架的身份。"]
+      },
+      "payment-merchant": {
+        action: ["支付商户是产品真正收钱的前提，用来完成收款、结算、账单和支付能力开通。"],
+        input: ["营业执照、对公账户、结算信息和商户申请资料。"],
+        output: ["可接入支付通道的商户身份和收款能力。"]
+      },
+      "filing-domain": {
+        action: ["域名和网站常见要先做 ICP 备案，网站还可能要做公安备案。一般你的服务托管在哪个平台，就从哪个平台后台发起备案。"],
+        input: ["域名、主体信息和备案资料。"],
+        output: ["可用于正式服务的备案结果和域名状态。"]
+      },
+      "filing-miniapp": {
+        action: ["小程序如果面向国内正式上线，通常也要完成对应备案。一般在你所使用的平台或云服务后台里发起。"],
+        input: ["小程序主体资料、服务信息和备案材料。"],
+        output: ["小程序备案结果和可上线状态。"]
+      },
+      "filing-app": {
+        action: ["App 面向国内上线前，通常要先完成 App 备案。一般也是在哪个平台托管服务，就从哪个平台后台发起。"],
+        input: ["应用资料、主体信息、服务信息和备案材料。"],
+        output: ["App 备案结果和可上线状态。"]
+      },
+      "filing-website": {
+        action: ["网站最常见的是 ICP 备案和公安备案。一般先在云厂商或托管平台后台发起 ICP 备案，备案号下来后再做公安备案。"],
+        input: ["网站资料、主体信息、域名和备案材料。"],
+        output: ["网站上线所需的备案结果和备案号。"]
+      },
+      "filing-game": {
+        action: ["游戏版号申请门槛通常比较高。如果拿不到版号，一般就不能正规接入游戏内支付，很多时候只能先靠广告变现。"],
+        input: ["游戏资料、主体信息和版号 / 备案材料。"],
+        output: ["游戏相关备案、版号或监管结果。"]
+      },
+      "filing-sms": {
+        action: ["短信报备这块解决的是：验证码和通知短信能不能在中国国内合法稳定发出去。"],
+        input: ["短信签名、模板、主体资质和通道配置。"],
+        output: ["可用的短信模板、签名和发送能力。"]
+      },
+      "filing-algorithm": {
+        action: ["如果 AI 算法是你们自己开发的，就要自己做算法备案；如果只是调用第三方模型或算法，一般要准备对方的备案截图或备案信息。"],
+        input: ["算法说明、产品资料和备案材料。"],
+        output: ["算法备案状态或相关合规结果。"]
+      },
+      "app-store": {
+        action: ["App Store 是 iOS 用户真正下载、付费和更新应用的地方。"],
+        input: ["iOS 包体、截图、元数据、审核资料和开发者身份。"],
+        output: ["可被 iPhone 用户下载和购买的正式版本。"]
+      },
+      "google-play": {
+        action: ["Google Play 是海外安卓用户最主要的官方分发渠道。"],
+        input: ["安卓包体、元数据、审核资料和开发者身份。"],
+        output: ["可被海外安卓用户下载和更新的正式版本。"]
+      },
+      "china-android-markets": {
+        action: ["国内安卓应用市场是安卓应用在中国分发的主要渠道，通常不是一个后台，而是一组市场。"],
+        input: ["安卓包体、应用资料和各市场审核信息。"],
+        output: ["可在多个国内市场下载的安卓版本。"]
+      },
+      "wechat-release": {
+        action: ["小程序后台用来上传版本、提交审核、灰度发布和正式发布。"],
+        input: ["小程序代码包、版本说明和审核资料。"],
+        output: ["可审核、可灰度、可正式发布的小程序版本。"]
+      },
+      "api-service": {
+        action: ["API 服务就是前端和后端交互的入口，页面上的大多数操作最终都会打到这里。"],
+        input: ["前端请求、用户操作和业务参数。"],
+        output: ["接口返回数据，以及对数据库、存储和日志的后续处理。"]
+      },
+      "auth-service": {
+        action: ["鉴权服务用来识别用户是谁、是否已登录、有没有权限访问对应功能。"],
+        input: ["登录请求、身份凭证和会话信息。"],
+        output: ["登录状态、用户身份和权限判断结果。"]
+      },
+      "order-service": {
+        action: ["订单服务用来创建订单、处理支付回调、做退款和补偿，是商业化链路的核心。"],
+        input: ["用户购买请求、商品信息和支付结果。"],
+        output: ["订单状态、支付结果和后续订单处理动作。"]
+      },
+      "admin-panel": {
+        action: ["管理后台是给自己人用的，用来配置业务、看数据、排查问题和处理线上异常。"],
+        input: ["运营配置、业务操作和排障需求。"],
+        output: ["后台配置结果、业务调整和排障动作。"]
+      },
+      antifraud: {
+        action: ["风控模块用来检查用户提交内容和用户行为。国内产品尤其要重视敏感词检测，文本、图片、昵称、简介、评论、上传内容都最好在这里过一遍。除了商业审核方案，也可以先接入 sensitive-word 这类开源模块做基础检测。"],
+        input: ["用户提交内容、用户行为日志、登录态和订单相关数据。"],
+        output: ["拦截结果、风险分级、审核结论和后续处理动作。"]
+      },
+      "sql-db": {
+        action: ["SQL 数据库用来保存用户、订单、内容和配置这些最核心的业务数据。"],
+        input: ["后端写入的数据和业务变更请求。"],
+        output: ["可被查询、统计和继续处理的结构化数据。"]
+      },
+      redis: {
+        action: ["Redis 常用来放缓存、会话、限流和短期高频读写数据。"],
+        input: ["登录态、缓存值和限流相关数据。"],
+        output: ["更快的读取结果、会话状态和限流判断。"]
+      },
+      "object-storage": {
+        action: ["对象存储用来放图片、音频、安装包等不适合放进数据库的大文件。"],
+        input: ["上传的图片、文件、音频和安装包。"],
+        output: ["可被访问或下载的文件资源地址。"]
+      },
+      "log-store": {
+        action: [
+          "日志存储不只是后端打印日志，前端错误和关键行为也要上报上来，这样才能发现前端异常并调查真实问题。",
+          "前后端日志最好用同一个日志 ID 串起来，通常由前端生成、后端沿路透传和记录。"
+        ],
+        input: ["前端上报日志、后端日志、支付日志和部署过程日志。"],
+        output: ["可按日志 ID 串起来查询的完整排障证据链。"]
+      },
+      "model-text": {
+        action: [
+          "文本模型用来处理问答、改写、总结、抽取和文本生成，是最常见的一类模型能力。",
+          "要想效果稳定，提示词通常要反复测试和迭代，开发者得持续学习 prompt 怎么写。"
+        ],
+        input: ["Prompt、上下文、知识库内容和用户文本。"],
+        output: ["回复内容、结构化结果或改写后的文本。"]
+      },
+      "model-image": {
+        action: [
+          "图片模型用来生成图片、编辑图片，或者识别和理解图片内容。",
+          "提示词、参考图和参数设置差一点，结果往往就会差很多。"
+        ],
+        input: ["图片素材、生成提示词或图片理解请求。"],
+        output: ["新图片、编辑结果或图片理解结果。"]
+      },
+      "model-video": {
+        action: [
+          "视频模型用来生成视频、理解视频内容，或者辅助做视频加工。",
+          "这里更要重视提示词、镜头描述和迭代测试，不然结果很容易跑偏。"
+        ],
+        input: ["视频素材、生成提示词或视频分析请求。"],
+        output: ["视频片段、视频理解结果或处理后的内容。"]
+      },
+      "model-voice": {
+        action: [
+          "语音模型用来做语音识别、语音合成和语音理解，适合语音输入输出场景。",
+          "除了模型本身，提示词、上下文和后处理规则也会明显影响最终效果。"
+        ],
+        input: ["音频数据、文本内容或语音任务请求。"],
+        output: ["识别文本、合成语音或语音理解结果。"]
+      },
+      aliyun: {
+        action: ["阿里云是把后端服务、数据库、存储和网络资源真正跑起来的一种云平台选择。"],
+        input: ["代码、部署配置和云资源申请。"],
+        output: ["在线运行的服务、数据库和存储资源。"]
+      },
+      aws: {
+        action: ["AWS 是全球常见的云平台，用来承载后端服务、数据库、存储和网络资源。"],
+        input: ["代码、部署配置和云资源申请。"],
+        output: ["在线运行的服务、数据库和存储资源。"]
+      },
+      gcp: {
+        action: ["Google Cloud 是 Google 的云平台，适合把后端服务、数据库和存储托管到云上。"],
+        input: ["代码、部署配置和云资源申请。"],
+        output: ["在线运行的服务、数据库和存储资源。"]
+      },
+      registrar: {
+        action: ["域名服务商用来购买和管理域名，是网站正式对外的入口来源。"],
+        input: ["域名购买请求和主体信息。"],
+        output: ["域名所有权和 DNS 管理能力。"]
+      },
+      ca: {
+        action: ["证书签发机构用来给网站和服务签发 HTTPS 证书。"],
+        input: ["域名、证书申请请求和验证信息。"],
+        output: ["可绑定到网站或服务上的 TLS 证书。"]
+      },
+      "wechat-pay": {
+        action: ["微信支付是面向中文用户时最常见的一条支付通道，尤其常见于小程序和网站。"],
+        input: ["订单信息、金额和微信支付商户配置。"],
+        output: ["支付结果、回调和收款状态。"]
+      },
+      alipay: {
+        action: ["支付宝是国内常见的另一条支付通道，很多用户会直接期待它。"],
+        input: ["订单信息、金额和支付宝商户配置。"],
+        output: ["支付结果、回调和收款状态。"]
+      },
+      stripe: {
+        action: ["Stripe 是海外 Web 支付里最常见的方案之一，适合做 SaaS、订阅和网站收款。"],
+        input: ["订单信息、金额和 Stripe 商户配置。"],
+        output: ["支付结果、订阅状态和收款状态。"]
+      },
+      paypal: {
+        action: ["PayPal 是很多海外用户熟悉的支付方式，常和 Stripe 一起被考虑。"],
+        input: ["订单信息、金额和 PayPal 商户配置。"],
+        output: ["支付结果和收款状态。"]
+      },
+      "apple-iap": {
+        action: ["Apple IAP 是 iOS 应用内数字内容付费必须走的官方支付方式。"],
+        input: ["App 内购项目、商品信息和苹果账号配置。"],
+        output: ["内购支付结果和订阅 / 商品购买状态。"]
+      },
+      "google-billing": {
+        action: ["Google Play Billing 是海外安卓应用内购买的官方支付体系。"],
+        input: ["应用内商品、Billing 配置和用户购买请求。"],
+        output: ["支付结果和 Google Play 内购状态。"]
+      },
+      "google-pay": {
+        action: ["Google Pay 是 Google 生态中的一种支付方式，适合部分 Web 或移动端支付场景。"],
+        input: ["订单信息、金额和支付配置。"],
+        output: ["支付结果和收款状态。"]
+      },
+      "login-cn": {
+        action: ["国内登录服务用来让用户通过短信、邮箱、微信、苹果等方式进入产品。"],
+        input: ["手机号、验证码、第三方账号授权和登录请求。"],
+        output: ["登录状态、用户身份和账号绑定结果。"]
+      },
+      "login-global": {
+        action: ["海外登录服务用来让用户通过短信、邮箱、Google、Apple、Microsoft 或社交账号进入产品。"],
+        input: ["邮箱、验证码、第三方授权和登录请求。"],
+        output: ["登录状态、用户身份和账号绑定结果。"]
+      },
+      "monetize-ads": {
+        action: ["广告是一种流量变现方式，适合先免费获客、再通过展示或激励广告赚钱。"],
+        input: ["用户流量、广告位和广告平台接入。"],
+        output: ["广告收入和广告展示结果。"]
+      },
+      "monetize-download": {
+        action: ["App 下载付费是让用户先付费，再获得下载或安装资格的一种变现方式。"],
+        input: ["应用定价、下载规则和市场配置。"],
+        output: ["下载收入和付费下载能力。"]
+      },
+      "monetize-paid": {
+        action: ["单次付费购买适合一次买断某个功能、服务或内容。"],
+        input: ["商品定义、价格和购买流程。"],
+        output: ["一次性收入和购买结果。"]
+      },
+      "monetize-iap": {
+        action: ["App 内购适合在应用内部直接卖功能、虚拟物品或会员。"],
+        input: ["内购商品定义、平台配置和购买流程。"],
+        output: ["应用内购买收入和商品解锁结果。"]
+      },
+      "monetize-subscription": {
+        action: ["订阅购买适合持续提供服务或会员权益，按月或按年持续收费。"],
+        input: ["订阅套餐、价格和续费规则。"],
+        output: ["持续性收入和订阅状态。"]
+      },
+      users: {
+        action: ["用户是这整张图最后要服务的人，前面的开发、发布和支付动作最终都要落到用户体验上。"],
+        input: ["网站入口、下载入口、账号和支付能力。"],
+        output: ["使用行为、反馈、留存和付费。"]
+      }
+    };
+
+    const links = [
+      { from: "cursor", to: "frontend-code", type: "core" },
+      { from: "codex", to: "backend-code", type: "core" },
+      { from: "claude", to: "problem", type: "core" },
+      { from: "docs", to: "apple-iap", type: "core" },
+      { from: "docs", to: "google-play", type: "core" },
+      { from: "pencil", to: "prototype", type: "core" },
+      { from: "problem", to: "positioning", type: "core" },
+      { from: "positioning", to: "prd", type: "core" },
+      { from: "prd", to: "prototype", type: "core" },
+      { from: "prd", to: "frontend-code", type: "core" },
+      { from: "prd", to: "backend-code", type: "core" },
+      { from: "prototype", to: "frontend-code", type: "core" },
+
+      { from: "github", to: "frontend-code", type: "contains" },
+      { from: "github", to: "backend-code", type: "contains" },
+      { from: "github", to: "actions", type: "core" },
+      { from: "actions", to: "vercel", type: "core" },
+      { from: "actions", to: "cloud-run", type: "core" },
+      { from: "actions", to: "cloudflare", type: "core" },
+
+      { from: "frontend-code", to: "website", type: "core" },
+      { from: "frontend-code", to: "docs-site", type: "core" },
+      { from: "frontend-code", to: "pricing-page", type: "core" },
+      { from: "frontend-code", to: "landing-page", type: "core" },
+      { from: "frontend-code", to: "webapp", type: "core" },
+      { from: "frontend-code", to: "ios-app", type: "core" },
+      { from: "frontend-code", to: "android-app", type: "core" },
+      { from: "frontend-code", to: "miniapp", type: "core" },
+      { from: "frontend-code", to: "desktop-app", type: "core" },
+      { from: "website", to: "docs-site", type: "contains" },
+      { from: "website", to: "pricing-page", type: "contains" },
+      { from: "website", to: "landing-page", type: "contains" },
+      { from: "website", to: "domain", type: "core" },
+      { from: "docs-site", to: "vercel", type: "core" },
+      { from: "pricing-page", to: "stripe", type: "core" },
+      { from: "landing-page", to: "cloudflare", type: "core" },
+      { from: "webapp", to: "api-service", type: "core" },
+      { from: "webapp", to: "domain", type: "core" },
+      { from: "webapp", to: "pricing-page", type: "core" },
+      { from: "website", to: "cloudflare", type: "core" },
+      { from: "website", to: "vercel", type: "core" },
+      { from: "desktop-app", to: "landing-page", type: "core" },
+
+      { from: "backend-code", to: "api-service", type: "core" },
+      { from: "backend-code", to: "auth-service", type: "core" },
+      { from: "backend-code", to: "order-service", type: "core" },
+      { from: "backend-code", to: "admin-panel", type: "core" },
+      { from: "admin-panel", to: "api-service", type: "core" },
+      { from: "api-service", to: "sql-db", type: "core" },
+      { from: "api-service", to: "object-storage", type: "core" },
+      { from: "api-service", to: "log-store", type: "core" },
+      { from: "auth-service", to: "redis", type: "core" },
+      { from: "order-service", to: "sql-db", type: "core" },
+
+      { from: "vercel", to: "website", type: "core" },
+      { from: "cloud-run", to: "api-service", type: "core" },
+      { from: "cloud-sql", to: "sql-db", type: "core" },
+      { from: "cloud-storage", to: "object-storage", type: "core" },
+      { from: "cloudflare", to: "domain", type: "core" },
+
+      { from: "domain", to: "dns", type: "core" },
+      { from: "domain", to: "tls-cert", type: "core" },
+      { from: "dns", to: "registrar", type: "core" },
+      { from: "tls-cert", to: "ca", type: "core" },
+
+      { from: "ios-app", to: "app-store", type: "core" },
+      { from: "android-app", to: "google-play", type: "core" },
+      { from: "android-app", to: "china-android-markets", type: "core" },
+      { from: "miniapp", to: "wechat-release", type: "core" },
+      { from: "apple-dev", to: "app-store", type: "core" },
+      { from: "app-store-connect", to: "app-store", type: "core" },
+      { from: "google-console", to: "google-play", type: "core" },
+      { from: "wechat-open", to: "wechat-release", type: "core" },
+      { from: "china-android-console", to: "china-android-markets", type: "core" },
+
+      { from: "order-service", to: "wechat-pay", type: "core" },
+      { from: "order-service", to: "alipay", type: "core" },
+      { from: "order-service", to: "stripe", type: "core" },
+      { from: "app-store", to: "apple-iap", type: "core" },
+      { from: "google-play", to: "google-billing", type: "core" },
+      { from: "wechat-pay", to: "rights", type: "core" },
+      { from: "alipay", to: "rights", type: "core" },
+      { from: "stripe", to: "rights", type: "core" },
+      { from: "apple-iap", to: "rights", type: "core" },
+      { from: "google-billing", to: "rights", type: "core" },
+      { from: "auth-service", to: "rights", type: "core" },
+
+      { from: "rights", to: "analytics", type: "core" },
+      { from: "auth-service", to: "antifraud", type: "core" },
+      { from: "log-store", to: "support", type: "core" },
+      { from: "order-service", to: "support", type: "core" },
+      { from: "sql-db", to: "analytics", type: "core" },
+      { from: "support", to: "prd", type: "core" }
+    ];
+
+    const groupLinks = [
+      { from: "g-developer", to: "g-accounts", type: "core", label: "申请账号 / 资质" },
+      { from: "g-developer", to: "g-compliance", type: "core", label: "提交备案", route: "above" },
+      { from: "g-developer", to: "g-planning", type: "core", label: "明确方向 / 沉淀规划" },
+      { from: "g-developer", to: "g-local", type: "core", label: "做本地调试" },
+      { from: "g-planning", to: "g-ai-tools", type: "core", label: "把规划交给 AI 实现" },
+      { from: "g-developer", to: "g-ai-tools", type: "core", label: "提出需求 / 发布指令", route: "below" },
+      { from: "g-ai-tools", to: "g-local", type: "core", label: "本地运行 / 调试" },
+      { from: "g-ai-tools", to: "g-dev-platform", type: "core", label: "生成小程序 / 客户端代码" },
+      { from: "g-ai-tools", to: "g-code", type: "core", label: "生成所有代码 / 文档" },
+      { from: "g-ai-tools", to: "g-infra", type: "core", label: "AI 自动化运维" },
+      { from: "g-code", to: "g-infra", type: "core", label: "拉取 Web / 后端代码" },
+      { from: "g-infra", to: "g-backend", type: "core", label: "发布后端服务" },
+      { from: "g-backend", to: "g-model", type: "core", label: "调用模型服务" },
+      { from: "g-infra", to: "g-web", type: "core", label: "部署网站" },
+      { from: "g-dev-platform", to: "g-miniapp-admin", type: "core", label: "小程序代码上传" },
+      { from: "g-dev-platform", to: "g-release", type: "core", label: "打包 / 提审" },
+      { from: "g-release", to: "g-app", type: "core", label: "发布" },
+      { from: "g-release", to: "g-pc", type: "core", label: "发布" },
+      { from: "g-miniapp-admin", to: "g-miniapp", type: "core", label: "发布" },
+      { from: "g-backend", to: "g-miniapp", type: "core", label: "提供后端接口" },
+      { from: "g-backend", to: "g-app", type: "core", label: "提供后端接口" },
+      { from: "g-backend", to: "g-pc", type: "core", label: "提供后端接口" },
+      { from: "g-backend", to: "g-web", type: "core", label: "提供后端接口" },
+      { from: "g-web", to: "g-pc", type: "core", label: "直达下载" },
+      { from: "g-registrar", to: "g-web", type: "core", label: "提供域名 / DNS" },
+      { from: "g-ca", to: "g-web", type: "core", label: "签发 HTTPS 证书" },
+      { from: "g-users", to: "g-miniapp", type: "core", label: "用户使用" },
+      { from: "g-users", to: "g-app", type: "core", label: "用户使用" },
+      { from: "g-users", to: "g-pc", type: "core", label: "用户使用" },
+      { from: "g-users", to: "g-web", type: "core", label: "用户使用" }
+    ];
+
+    const entityToGroup = Object.fromEntries(
+      groups.flatMap((group) => group.entities.map((entityId) => [entityId, group.id]))
+    );
+
+    const DEFAULT_WORLD_WIDTH = 6400;
+    const DEFAULT_WORLD_HEIGHT = 4600;
+    const DEFAULT_CONTENT_OFFSET_X = 520;
+    const DEFAULT_CONTENT_OFFSET_Y = 360;
+    let worldWidth = DEFAULT_WORLD_WIDTH;
+    let worldHeight = DEFAULT_WORLD_HEIGHT;
+    let contentOffsetX = DEFAULT_CONTENT_OFFSET_X;
+    let contentOffsetY = DEFAULT_CONTENT_OFFSET_Y;
+    let baseWidth = worldWidth;
+    let baseHeight = worldHeight;
+
+    const canvas = document.getElementById("canvas");
+    const canvasViewport = document.getElementById("canvasViewport");
+    const svg = document.getElementById("connections");
+    const introPanel = document.getElementById("introPanel");
+    const qrModal = document.getElementById("qrModal");
+    const controlsPanel = document.getElementById("controlsPanel");
+    const detailPanel = document.getElementById("detailPanel");
+    const demoPanel = document.getElementById("demoPanel");
+    const toggleIntro = document.getElementById("toggleIntro");
+    const closeIntro = document.getElementById("closeIntro");
+    const closeQrModal = document.getElementById("closeQrModal");
+    const qrModalTitle = document.getElementById("qrModalTitle");
+    const qrModalImage = document.getElementById("qrModalImage");
+    const qrModalNote = document.getElementById("qrModalNote");
+    const modeExplore = document.getElementById("modeExplore");
+    const modeDemo = document.getElementById("modeDemo");
+    const toggleControls = document.getElementById("toggleControls");
+    const toggleDetail = document.getElementById("toggleDetail");
+    const stageSwitcher = document.getElementById("stageSwitcher");
+    const focusSwitcher = document.getElementById("focusSwitcher");
+    const canvasScroll = document.getElementById("canvasScroll");
+    const zoomDisplay = document.getElementById("zoomDisplay");
+    const zoomIn = document.getElementById("zoomIn");
+    const zoomOut = document.getElementById("zoomOut");
+    const zoomReset = document.getElementById("zoomReset");
+    const zoomFit = document.getElementById("zoomFit");
+    const zoomDockDisplay = document.getElementById("zoomDockDisplay");
+    const zoomDockIn = document.getElementById("zoomDockIn");
+    const zoomDockOut = document.getElementById("zoomDockOut");
+    const zoomDockFit = document.getElementById("zoomDockFit");
+    const demoStepTitle = document.getElementById("demoStepTitle");
+    const demoStepMeta = document.getElementById("demoStepMeta");
+    const demoStepText = document.getElementById("demoStepText");
+    const demoPrev = document.getElementById("demoPrev");
+    const demoNext = document.getElementById("demoNext");
+    const demoClose = document.getElementById("demoClose");
+
+    const detailCategory = document.getElementById("detailCategory");
+    const detailTitle = document.getElementById("detailTitle");
+    const detailIntro = document.getElementById("detailIntro");
+    const detailEssence = document.getElementById("detailEssence");
+    const detailWhy = document.getElementById("detailWhy");
+    const defaultDetail = {
+      category: detailCategory.textContent,
+      title: detailTitle.textContent,
+      intro: detailIntro.textContent,
+      essence: detailEssence.innerHTML,
+      why: detailWhy.innerHTML
+    };
+
+    let currentStage = "all";
+    let currentFocus = "all";
+    let currentSelection = null;
+    let currentSelectionType = null;
+    let currentZoom = 1;
+    let panState = null;
+    let panMoved = false;
+    let panJustEnded = false;
+    let suppressBlankClickUntil = 0;
+    let demoMode = false;
+    let demoStepIndex = 0;
+    let currentLayoutBounds = null;
+
+    function updateModeButtons() {
+      if (modeExplore) {
+        const isExplore = !demoMode;
+        modeExplore.classList.toggle("is-active", isExplore);
+        modeExplore.setAttribute("aria-pressed", isExplore ? "true" : "false");
+      }
+      if (modeDemo) {
+        modeDemo.classList.toggle("is-active", demoMode);
+        modeDemo.setAttribute("aria-pressed", demoMode ? "true" : "false");
+      }
+    }
+
+    const demoSteps = [
+      {
+        groupId: "g-planning",
+        title: "先做好产品规划",
+        text: "市场分析、需求分析、产品规划这些事情最好先想清楚。AI 可以辅助，但关键结论最好落到文档里。"
+      },
+      {
+        groupId: "g-accounts",
+        title: "准备账号和资质",
+        text: "做产品需要很多账号、资质和平台，这些最好提前准备好。"
+      },
+      {
+        groupId: "g-ai-tools",
+        title: "把需求交给 AI 工具",
+        text: "这一层负责把你的需求翻成代码修改、实现方案和开发动作。"
+      },
+      {
+        groupId: "g-local",
+        title: "先在本地调试环境里跑通",
+        text: "AI 生成的代码，通常还要先在本地运行、看日志、查数据、复现问题，很多错误都会在这一步暴露出来。"
+      },
+      {
+        groupId: "g-code",
+        title: "把代码沉淀到仓库",
+        text: "AI 生成和人工确认后的代码，要真正落到代码托管平台，后续部署才能接上。"
+      },
+      {
+        groupId: "g-dev-platform",
+        title: "在开发平台里调试和打包",
+        text: "前端、小程序、App、桌面端工程，通常还要在这些开发平台里继续调试、运行和打包。"
+      },
+      {
+        groupId: "g-infra",
+        title: "把服务部署到云平台",
+        text: "云平台负责把代码真正跑起来，承载后端服务、数据库、存储和网络资源。"
+      },
+      {
+        groupId: "g-backend",
+        title: "部署后端服务",
+        text: "后端服务通常是整个系统的核心，登录、订单、管理后台、数据库、日志、风控这些关键能力，都会在这里落地。"
+      },
+      {
+        groupId: "g-model",
+        title: "接入模型服务并持续调优",
+        text: "AI 时代，产品很可能需要接入文本、图片生成等各种 AI 能力。"
+      },
+      {
+        groupId: "g-ops",
+        title: "补完整登录体系",
+        text: "大多数正式产品都要先把登录打通，国内和海外常见的登录方式、短信和第三方账号体系都要提前想清楚。"
+      },
+      {
+        groupId: "g-monetization",
+        title: "设计变现方式",
+        text: "广告、下载付费、单次购买、App 内购、订阅购买，这些变现方式会直接影响产品设计和后端实现。"
+      },
+      {
+        groupId: "g-pay",
+        title: "接入支付手段",
+        text: "国内外支付链路不同，微信支付、支付宝、Apple IAP、Google Play Billing、Stripe、PayPal 等都要按产品形态分别接。"
+      },
+      {
+        groupId: "g-compliance",
+        title: "发布前处理国内备案",
+        text: "如果产品面向中国国内上线，域名、网站、App、小程序、算法等备案通常要在正式发布前准备好。"
+      },
+      {
+        groupId: "g-miniapp-admin",
+        title: "产品发布——小程序",
+        text: "把小程序代码上传到微信小程序管理后台，再提交审核、灰度发布和正式发布。",
+        highlightGroups: ["g-miniapp"]
+      },
+      {
+        groupId: "g-app",
+        title: "产品发布——APP",
+        text: "把 APP 包打包提审到应用市场，审核通过后再发布，最终到达用户手中。",
+        highlightGroups: ["g-release"]
+      },
+      {
+        groupId: "g-pc",
+        title: "产品发布——PC 软件",
+        text: "PC 软件既可以发布到应用市场，也可以放在自己的网站上直接提供软件下载包。",
+        highlightGroups: ["g-release", "g-web"]
+      },
+      {
+        groupId: "g-web",
+        title: "产品发布——网站",
+        text: "网站上线通常还需要提前准备好域名和证书，再把官网、文档站、Web 产品正式对外开放。",
+        highlightGroups: ["g-registrar", "g-ca"]
+      },
+      {
+        groupId: "g-users",
+        title: "关注用户反馈",
+        text: "经过千辛万苦，产品终于发布了出来，接下来就要持续关注用户反馈，并根据真实使用情况不断迭代。"
+      }
+    ];
+
+    function syncCanvasDimensions() {
+      canvas.style.width = `${worldWidth}px`;
+      canvas.style.height = `${worldHeight}px`;
+      canvasViewport.style.width = `${baseWidth * currentZoom}px`;
+      canvasViewport.style.height = `${baseHeight * currentZoom}px`;
+    }
+
+    function setPanelOpen(panel, button, open) {
+      panel.classList.toggle("is-open", open);
+      if (button) {
+        button.classList.toggle("is-active", open);
+        button.setAttribute("aria-pressed", open ? "true" : "false");
+      }
+    }
+
+    function togglePanel(panel, button) {
+      const nextOpen = !panel.classList.contains("is-open");
+      setPanelOpen(panel, button, nextOpen);
+    }
+
+    const focusMap = {
+      all: [],
+      tools: ["maker", "workspace", "problem", "positioning", "docs", "prd", "prototype", "pencil", "cursor", "codex", "claude", "local-terminal", "local-browser", "local-logs", "local-db"],
+      web: ["website", "docs-site", "pricing-page", "landing-page", "webapp", "domain", "dns", "tls-cert", "vercel", "cloudflare"],
+      app: ["wechat-devtools", "android-studio", "xcode", "hbuilder", "ios-app", "android-app", "miniapp", "desktop-app", "apple-account", "google-console", "wechat-account", "china-android-console", "app-store", "google-play", "china-android-markets", "wechat-release"],
+      deploy: ["github", "actions", "vercel", "cloud-run", "cloud-sql", "cloud-storage", "cloudflare", "domain", "dns", "tls-cert", "registrar", "ca", "website", "docs-site", "landing-page", "webapp", "api-service", "sql-db", "object-storage", "log-store"],
+      release: ["wechat-devtools", "android-studio", "xcode", "hbuilder", "ios-app", "android-app", "miniapp", "desktop-app", "apple-account", "google-console", "wechat-account", "china-android-console", "app-store", "google-play", "china-android-markets", "wechat-release", "landing-page"],
+      payment: ["pricing-page", "webapp", "ios-app", "android-app", "auth-service", "order-service", "wechat-pay", "alipay", "apple-iap", "google-billing", "google-pay", "stripe", "paypal", "monetize-ads", "monetize-download", "monetize-paid", "monetize-iap", "monetize-subscription", "app-store", "google-play"]
+    };
+
+    function isStageVisible(stages, stage) {
+      if (stage === "all") return true;
+      return stages.includes(stage);
+    }
+
+    function createGroup(group) {
+      const section = document.createElement("section");
+      section.className = "group";
+      section.dataset.id = group.id;
+      section.dataset.stages = group.stages.join(",");
+      section.dataset.collapsedHeight = String(group.collapsedHeight || 120);
+      section.dataset.compactHeight = String(group.compactHeight || 186);
+      section.dataset.expandedHeight = String(group.minHeight);
+      section.style.left = group.x + contentOffsetX + "px";
+      section.style.top = group.y + contentOffsetY + "px";
+      section.style.width = group.width + "px";
+      section.style.minHeight = group.minHeight + "px";
+
+      if (group.id === "g-developer" || group.id === "g-users") {
+        section.classList.add("is-icon-node");
+        const primaryEntityId = group.entities[0];
+        const iconButton = document.createElement("button");
+        iconButton.type = "button";
+        iconButton.className = "icon-node-button";
+        iconButton.dataset.id = primaryEntityId;
+        iconButton.dataset.group = group.id;
+        iconButton.dataset.stages = group.stages.join(",");
+        iconButton.innerHTML = `
+          <span class="icon-node-avatar" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="21" r="9" stroke="currentColor" stroke-width="3.2"/>
+              <path d="M16 49c2.8-8 9.1-12 16-12s13.2 4 16 12" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="icon-node-label">${group.title}</span>
+        `;
+        iconButton.addEventListener("click", () => selectEntity(primaryEntityId));
+        section.appendChild(iconButton);
+        canvas.appendChild(section);
+        return;
+      }
+
+      section.innerHTML = `
+        <div class="group-head">
+          <div>
+            <h3>${group.title}</h3>
+          </div>
+          <span class="group-tag">${group.tag}</span>
+        </div>
+        <div class="subgrid"></div>
+      `;
+
+      section.querySelector(".group-head").addEventListener("click", (event) => {
+        event.stopPropagation();
+        selectGroup(group.id);
+      });
+
+      const subgrid = section.querySelector(".subgrid");
+      if (group.columns === 3) {
+        subgrid.classList.add("is-cols-3");
+      }
+      group.entities.forEach((entityId) => {
+        const entity = entityMap[entityId];
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "entity";
+        button.dataset.id = entityId;
+        button.dataset.group = group.id;
+        button.dataset.stages = entity.stages.join(",");
+        button.innerHTML = `
+          <span class="entity-title">${entity.title}</span>
+          <span class="entity-subtitle">${entity.subtitle}</span>
+        `;
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          selectEntity(entityId);
+        });
+        subgrid.appendChild(button);
+      });
+
+      section.addEventListener("click", (event) => {
+        if (event.target.closest(".entity")) return;
+        selectGroup(group.id);
+      });
+
+      canvas.appendChild(section);
+    }
+
+    function getContentBounds() {
+      const horizontalPadding = 220;
+      const verticalPadding = 220;
+      const left = Math.min(...groups.map((group) => group.x)) + contentOffsetX - horizontalPadding;
+      const top = Math.min(...groups.map((group) => group.y)) + contentOffsetY - verticalPadding;
+      const right = Math.max(...groups.map((group) => group.x + group.width)) + contentOffsetX + horizontalPadding;
+      const bottom = Math.max(...groups.map((group) => group.y + group.minHeight)) + contentOffsetY + verticalPadding;
+      return {
+        left,
+        top,
+        width: right - left,
+        height: bottom - top
+      };
+    }
+
+    function updateHierarchyLevel() {
+      const level = currentZoom >= 1.0 ? "expanded" : currentZoom >= 0.5 ? "compact" : "collapsed";
+
+      canvas.querySelectorAll(".group").forEach((group) => {
+        group.classList.remove("is-collapsed", "is-compact");
+
+        if (level === "collapsed") {
+          group.classList.add("is-collapsed");
+          group.style.minHeight = `${group.dataset.collapsedHeight}px`;
+        } else if (level === "compact") {
+          group.classList.add("is-compact");
+          group.style.minHeight = `${group.dataset.compactHeight}px`;
+        } else {
+          group.style.minHeight = `${group.dataset.expandedHeight}px`;
+        }
+      });
+    }
+
+    function getEntityElement(id) {
+      return canvas.querySelector(`.entity[data-id="${id}"]`);
+    }
+
+    function getGroupElement(id) {
+      return canvas.querySelector(`.group[data-id="${id}"]`);
+    }
+
+    function centerGroupsInView(groupIds, behavior = "smooth") {
+      const ids = Array.isArray(groupIds) ? groupIds : [groupIds];
+      const targetGroups = ids
+        .map((groupId) => groups.find((item) => item.id === groupId))
+        .filter(Boolean);
+      if (!targetGroups.length) return;
+
+      const left = Math.min(...targetGroups.map((group) => group.x + contentOffsetX));
+      const top = Math.min(...targetGroups.map((group) => group.y + contentOffsetY));
+      const right = Math.max(...targetGroups.map((group) => group.x + contentOffsetX + group.width));
+      const bottom = Math.max(...targetGroups.map((group) => group.y + contentOffsetY + group.minHeight));
+
+      const boundsWidth = (right - left) * currentZoom;
+      const boundsHeight = (bottom - top) * currentZoom;
+      const panelHeight = demoMode && demoPanel.classList.contains("is-open")
+        ? demoPanel.getBoundingClientRect().height + 28
+        : 0;
+      const usableWidth = canvasScroll.clientWidth;
+      const usableHeight = Math.max(120, canvasScroll.clientHeight - panelHeight);
+      const viewportCenterX = usableWidth / 2;
+      const viewportCenterY = usableHeight / 2;
+      const targetLeft = left * currentZoom + boundsWidth / 2 - viewportCenterX;
+      const targetTop = top * currentZoom + boundsHeight / 2 - viewportCenterY;
+
+      canvasScroll.scrollTo({
+        left: Math.max(0, targetLeft),
+        top: Math.max(0, targetTop),
+        behavior
+      });
+    }
+
+    function updateGroupDetail(groupId) {
+      const group = groups.find((item) => item.id === groupId);
+      if (!group) return;
+
+      detailCategory.textContent = `模块说明 / ${group.title}`;
+      detailTitle.textContent = group.title;
+      detailIntro.textContent = group.tag;
+      detailEssence.innerHTML = `<li>${group.description}</li>`;
+      detailWhy.innerHTML = [
+        group.flowInput ? `<li>${group.flowInput}</li>` : "",
+        group.flowOutput ? `<li>${group.flowOutput}</li>` : ""
+      ].filter(Boolean).join("");
+    }
+
+    function updateConnectionDetail(fromGroupId, toGroupId) {
+      const fromGroup = groups.find((item) => item.id === fromGroupId);
+      const toGroup = groups.find((item) => item.id === toGroupId);
+      const link = groupLinks.find((item) => item.from === fromGroupId && item.to === toGroupId);
+      if (!fromGroup || !toGroup || !link) return;
+
+      detailCategory.textContent = `关系说明 / ${fromGroup.title} -> ${toGroup.title}`;
+      detailTitle.textContent = link.label || `${fromGroup.title} -> ${toGroup.title}`;
+      detailIntro.textContent = `${fromGroup.title} 和 ${toGroup.title} 之间的主干关系`;
+      detailEssence.innerHTML = `<li>这条关系的作用，是把 ${fromGroup.title} 的结果继续交给 ${toGroup.title} 处理。</li>`;
+      detailWhy.innerHTML = [
+        `<li>输入：来自 ${fromGroup.title} 的结果、资料或动作。</li>`,
+        `<li>输出：流向 ${toGroup.title} 的下一步处理。</li>`
+      ].join("");
+    }
+
+    function toLines(value) {
+      if (!value) return [];
+      return Array.isArray(value) ? value : [value];
+    }
+
+    function buildActionLines(entity) {
+      if (entity.action) return toLines(entity.action);
+      const essence = toLines(entity.essence);
+      const why = toLines(entity.why);
+      if (essence.length && why.length) {
+        return [`${essence[0]} ${why[0]}`];
+      }
+      return [...essence, ...why];
+    }
+
+    function selectConnection(fromGroupId, toGroupId) {
+      currentSelection = `${fromGroupId}::${toGroupId}`;
+      currentSelectionType = "connection";
+
+      canvas.querySelectorAll(".entity").forEach((entity) => {
+        entity.classList.remove("is-active", "is-dim");
+      });
+
+      canvas.querySelectorAll(".group").forEach((group) => {
+        if (group.classList.contains("is-hidden")) return;
+        const isActive = group.dataset.id === fromGroupId || group.dataset.id === toGroupId;
+        group.classList.toggle("is-active", isActive);
+        group.classList.remove("is-current");
+        group.classList.toggle("is-dim", !isActive);
+      });
+
+      svg.querySelectorAll(".connection, .connection-label").forEach((path) => {
+        const isActive = path.dataset.fromGroup === fromGroupId && path.dataset.toGroup === toGroupId;
+        path.classList.toggle("is-active", isActive);
+        path.classList.toggle("is-dim", !isActive);
+        if (path.classList.contains("connection")) {
+          path.setAttribute("marker-end", isActive ? "url(#arrow-active)" : "url(#arrow-default)");
+        }
+      });
+
+      updateConnectionDetail(fromGroupId, toGroupId);
+      setPanelOpen(detailPanel, toggleDetail, true);
+    }
+
+    function selectGroup(groupId, options = {}) {
+      currentSelection = groupId;
+      currentSelectionType = "group";
+      const focused = getFocusedVisibleEntities();
+      const hasFocus = currentFocus !== "all";
+      const highlightGroups = Array.isArray(options.highlightGroups) ? options.highlightGroups : [];
+      const explicitHighlight = new Set([groupId, ...highlightGroups]);
+      const equalHighlight = Boolean(options.equalHighlight);
+      const relatedGroups = new Set(explicitHighlight);
+      const activePairs = new Set();
+
+      if (highlightGroups.length) {
+        groupLinks.forEach((link) => {
+          if (explicitHighlight.has(link.from) && explicitHighlight.has(link.to)) {
+            activePairs.add(`${link.from}::${link.to}`);
+          }
+        });
+      } else {
+        groupLinks.forEach((link) => {
+          if (link.from === groupId || link.to === groupId) {
+            relatedGroups.add(link.from);
+            relatedGroups.add(link.to);
+            activePairs.add(`${link.from}::${link.to}`);
+          }
+        });
+      }
+
+      canvas.querySelectorAll(".entity").forEach((entity) => {
+        if (entity.style.display === "none") return;
+        const entityGroup = entity.dataset.group;
+        const isFocused = focused.has(entity.dataset.id);
+        entity.classList.remove("is-active");
+        entity.classList.toggle("is-dim", !relatedGroups.has(entityGroup) || (hasFocus && !isFocused));
+      });
+
+      canvas.querySelectorAll(".group").forEach((group) => {
+        if (group.classList.contains("is-hidden")) return;
+        const groupIsRelated = relatedGroups.has(group.dataset.id);
+        const visibleChildren = Array.from(group.querySelectorAll(".entity")).filter((entity) => entity.style.display !== "none");
+        const focusedCount = visibleChildren.filter((entity) => focused.has(entity.dataset.id)).length;
+        group.classList.toggle("is-active", group.dataset.id === groupId || groupIsRelated);
+        group.classList.toggle("is-current", equalHighlight ? explicitHighlight.has(group.dataset.id) : group.dataset.id === groupId);
+        group.classList.toggle("is-dim", !groupIsRelated || (hasFocus && focusedCount === 0 && group.dataset.id !== groupId));
+      });
+
+      svg.querySelectorAll(".connection, .connection-label").forEach((path) => {
+        const pair = `${path.dataset.fromGroup}::${path.dataset.toGroup}`;
+        const reversePair = `${path.dataset.toGroup}::${path.dataset.fromGroup}`;
+        const isActive = activePairs.has(pair) || activePairs.has(reversePair);
+        path.classList.toggle("is-active", isActive);
+        path.classList.toggle("is-dim", !isActive);
+        if (path.classList.contains("connection")) {
+          path.setAttribute("marker-end", isActive ? "url(#arrow-active)" : "url(#arrow-default)");
+        }
+      });
+
+      updateGroupDetail(groupId);
+      setPanelOpen(detailPanel, toggleDetail, true);
+    }
+
+    function getVisibleEntities() {
+      return Object.keys(entityMap).filter((id) => isStageVisible(entityMap[id].stages, currentStage));
+    }
+
+    function getFocusedVisibleEntities() {
+      const visible = getVisibleEntities();
+      if (currentFocus === "all") return new Set(visible);
+      return new Set((focusMap[currentFocus] || []).filter((id) => visible.includes(id)));
+    }
+
+    function drawLinks() {
+      svg.querySelectorAll("path.connection, text.connection-label").forEach((node) => node.remove());
+      const visibleGroups = new Set(
+        groups
+          .filter((group) => isStageVisible(group.stages, currentStage))
+          .map((group) => group.id)
+      );
+      const rootRect = canvas.getBoundingClientRect();
+
+      groupLinks.forEach((link) => {
+        if (!visibleGroups.has(link.from) || !visibleGroups.has(link.to)) return;
+        const fromEl = getGroupElement(link.from);
+        const toEl = getGroupElement(link.to);
+        if (!fromEl || !toEl) return;
+
+        const fromRect = fromEl.getBoundingClientRect();
+        const toRect = toEl.getBoundingClientRect();
+        const fromCenterX = fromRect.left - rootRect.left + fromRect.width / 2;
+        const fromCenterY = fromRect.top - rootRect.top + fromRect.height / 2;
+        const toCenterX = toRect.left - rootRect.left + toRect.width / 2;
+        const toCenterY = toRect.top - rootRect.top + toRect.height / 2;
+        const dx = toCenterX - fromCenterX;
+        const dy = toCenterY - fromCenterY;
+        const horizontal = Math.abs(dx) >= Math.abs(dy);
+        const ax = (
+          fromRect.left - rootRect.left +
+          (horizontal ? (dx >= 0 ? fromRect.width : 0) : fromRect.width / 2)
+        ) / currentZoom;
+        const ay = (
+          fromRect.top - rootRect.top +
+          (horizontal ? fromRect.height / 2 : (dy >= 0 ? fromRect.height : 0))
+        ) / currentZoom;
+        const bx = (
+          toRect.left - rootRect.left +
+          (horizontal ? (dx >= 0 ? 0 : toRect.width) : toRect.width / 2)
+        ) / currentZoom;
+        const by = (
+          toRect.top - rootRect.top +
+          (horizontal ? toRect.height / 2 : (dy >= 0 ? 0 : toRect.height))
+        ) / currentZoom;
+        const curveOffset = horizontal ? Math.max(80, Math.abs(dx) * 0.25) : Math.max(80, Math.abs(dy) * 0.25);
+        let d;
+        let labelX;
+        let labelY;
+
+        if (link.route === "above") {
+          const fromTop = (fromRect.top - rootRect.top) / currentZoom;
+          const toTop = (toRect.top - rootRect.top) / currentZoom;
+          const topY = Math.min(fromTop, toTop) - 36;
+          const startX = (fromRect.right - rootRect.left - 18) / currentZoom;
+          const endX = (toRect.left - rootRect.left + 18) / currentZoom;
+          const startY = (fromRect.top - rootRect.top + 20) / currentZoom;
+          const endY = (toRect.top - rootRect.top + 20) / currentZoom;
+          d = `M ${startX} ${startY} C ${startX + 26} ${topY}, ${endX - 26} ${topY}, ${endX} ${endY}`;
+          labelX = (startX + endX) / 2;
+          labelY = topY - 10;
+        } else if (link.route === "below") {
+          const fromBottom = (fromRect.bottom - rootRect.top) / currentZoom;
+          const toBottom = (toRect.bottom - rootRect.top) / currentZoom;
+          const bottomY = Math.max(fromBottom, toBottom) + 42;
+          const startX = (fromRect.right - rootRect.left - 18) / currentZoom;
+          const endX = (toRect.left - rootRect.left + 18) / currentZoom;
+          const startY = (fromRect.bottom - rootRect.top - 18) / currentZoom;
+          const endY = (toRect.bottom - rootRect.top - 18) / currentZoom;
+          d = `M ${startX} ${startY} C ${startX + 30} ${bottomY}, ${endX - 30} ${bottomY}, ${endX} ${endY}`;
+          labelX = (startX + endX) / 2;
+          labelY = bottomY + 18;
+        } else {
+          d = horizontal
+            ? `M ${ax} ${ay} C ${ax + (dx >= 0 ? curveOffset : -curveOffset)} ${ay}, ${bx - (dx >= 0 ? curveOffset : -curveOffset)} ${by}, ${bx} ${by}`
+            : `M ${ax} ${ay} C ${ax} ${ay + (dy >= 0 ? curveOffset : -curveOffset)}, ${bx} ${by - (dy >= 0 ? curveOffset : -curveOffset)}, ${bx} ${by}`;
+          labelX = (ax + bx) / 2;
+          labelY = (ay + by) / 2 - 8;
+        }
+
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", d);
+        path.setAttribute("class", `connection ${link.type === "contains" ? "is-contains" : ""}`.trim());
+        path.setAttribute("marker-end", "url(#arrow-default)");
+        path.dataset.fromGroup = link.from;
+        path.dataset.toGroup = link.to;
+        path.style.pointerEvents = "auto";
+        path.addEventListener("click", (event) => {
+          event.stopPropagation();
+          selectConnection(link.from, link.to);
+        });
+        svg.appendChild(path);
+
+        if (link.label) {
+          const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          label.setAttribute("x", labelX.toString());
+          label.setAttribute("y", labelY.toString());
+          label.setAttribute("text-anchor", "middle");
+          label.setAttribute("class", "connection-label");
+          label.dataset.fromGroup = link.from;
+          label.dataset.toGroup = link.to;
+          label.textContent = link.label;
+          label.style.pointerEvents = "auto";
+          label.addEventListener("click", (event) => {
+            event.stopPropagation();
+            selectConnection(link.from, link.to);
+          });
+          svg.appendChild(label);
+        }
+      });
+    }
+
+    function updateDetail(id) {
+      const entity = entityMap[id];
+      const override = entityDetailOverrides[id] || {};
+      const inbound = links
+        .filter((link) => link.to === id)
+        .map((link) => entityMap[link.from]?.title)
+        .filter(Boolean);
+      const outbound = links
+        .filter((link) => link.from === id)
+        .map((link) => entityMap[link.to]?.title)
+        .filter(Boolean);
+      const contains = links
+        .filter((link) => link.from === id && link.type === "contains")
+        .map((link) => entityMap[link.to]?.title)
+        .filter(Boolean);
+      const actionLines = buildActionLines({
+        ...entity,
+        action: override.action || entity.action,
+        essence: override.essence || entity.essence,
+        why: override.why || entity.why
+      }).filter(Boolean);
+      const ioLines = [
+        ...toLines(override.input || entity.input).map((item) => `输入：${item}`),
+        ...toLines(override.output || entity.output).map((item) => `输出：${item}`)
+      ];
+      if (!ioLines.length) {
+        if (inbound.length) ioLines.push(`输入：通常来自 ${inbound.join("、")}`);
+        const targets = [...outbound, ...contains].filter(Boolean);
+        if (targets.length) ioLines.push(`输出：通常连接到 ${targets.join("、")}`);
+      }
+
+      detailCategory.textContent = `实体说明 / ${entity.title}`;
+      detailTitle.textContent = entity.title;
+      detailIntro.textContent = entity.subtitle;
+      detailEssence.innerHTML = actionLines.map((item) => `<li>${item}</li>`).join("");
+      detailWhy.innerHTML = ioLines.map((item) => `<li>${item}</li>`).join("");
+    }
+
+    function clearSelection() {
+      currentSelection = null;
+      currentSelectionType = null;
+      canvas.querySelectorAll(".entity").forEach((entity) => {
+        entity.classList.remove("is-active", "is-dim");
+      });
+
+      canvas.querySelectorAll(".group").forEach((group) => {
+        group.classList.remove("is-active", "is-current");
+      });
+
+      svg.querySelectorAll(".connection").forEach((path) => {
+        path.classList.remove("is-active", "is-dim");
+        path.setAttribute("marker-end", "url(#arrow-default)");
+      });
+
+      detailCategory.textContent = defaultDetail.category;
+      detailTitle.textContent = defaultDetail.title;
+      detailIntro.textContent = defaultDetail.intro;
+      detailEssence.innerHTML = defaultDetail.essence;
+      detailWhy.innerHTML = defaultDetail.why;
+      setPanelOpen(detailPanel, toggleDetail, false);
+      renderFocusState();
+    }
+
+    function renderFocusState() {
+      const focused = getFocusedVisibleEntities();
+      const hasFocus = currentFocus !== "all";
+
+      focusSwitcher.querySelectorAll(".focus-button").forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.focus === currentFocus);
+      });
+
+      canvas.querySelectorAll(".entity").forEach((entity) => {
+        if (entity.style.display === "none") return;
+        const isFocused = focused.has(entity.dataset.id);
+        entity.classList.remove("is-active");
+        entity.classList.toggle("is-dim", hasFocus && !isFocused);
+      });
+
+      canvas.querySelectorAll(".group").forEach((group) => {
+        if (group.classList.contains("is-hidden")) return;
+        const visibleChildren = Array.from(group.querySelectorAll(".entity")).filter((entity) => entity.style.display !== "none");
+        const focusedCount = visibleChildren.filter((entity) => focused.has(entity.dataset.id)).length;
+        group.classList.toggle("is-active", hasFocus && focusedCount > 0);
+        group.classList.remove("is-current");
+        group.classList.toggle("is-dim", hasFocus && focusedCount === 0);
+      });
+
+      svg.querySelectorAll(".connection, .connection-label").forEach((path) => {
+        const fromGroup = path.dataset.fromGroup;
+        const toGroup = path.dataset.toGroup;
+        const visibleFocusedGroups = new Set(
+          Array.from(focused).map((entityId) => entityToGroup[entityId]).filter(Boolean)
+        );
+        const isFocused = visibleFocusedGroups.has(fromGroup) && visibleFocusedGroups.has(toGroup);
+        path.classList.remove("is-active");
+        path.classList.toggle("is-dim", hasFocus && !isFocused);
+        if (path.classList.contains("connection")) {
+          path.setAttribute("marker-end", "url(#arrow-default)");
+        }
+      });
+    }
+
+    function applyFocus(focus) {
+      currentFocus = focus;
+      if (currentSelection) {
+        if (currentSelectionType === "group") {
+          selectGroup(currentSelection);
+        } else if (currentSelectionType === "connection") {
+          const [fromGroupId, toGroupId] = currentSelection.split("::");
+          selectConnection(fromGroupId, toGroupId);
+        } else {
+          selectEntity(currentSelection);
+        }
+      } else {
+        renderFocusState();
+      }
+    }
+
+    function applyStage(stage) {
+      currentStage = stage;
+
+      stageSwitcher.querySelectorAll(".stage-button").forEach((button) => {
+        button.classList.toggle("is-active", button.dataset.stage === stage);
+      });
+
+      canvas.querySelectorAll(".group").forEach((group) => {
+        const stages = group.dataset.stages.split(",");
+        group.classList.toggle("is-hidden", !isStageVisible(stages, stage));
+      });
+
+      canvas.querySelectorAll(".entity").forEach((entity) => {
+        const stages = entity.dataset.stages.split(",");
+        entity.style.display = isStageVisible(stages, stage) ? "block" : "none";
+      });
+
+      drawLinks();
+      clearSelection();
+    }
+
+    function updateZoomDisplay() {
+      zoomDisplay.textContent = `缩放 ${Math.round(currentZoom * 100)}%`;
+      zoomDockDisplay.textContent = `${Math.round(currentZoom * 100)}%`;
+    }
+
+    function applyZoom(zoom) {
+      currentZoom = Math.min(1.8, Math.max(0.45, zoom));
+      canvas.style.transform = `scale(${currentZoom})`;
+      canvas.style.transformOrigin = "top left";
+      canvasViewport.style.width = `${baseWidth * currentZoom}px`;
+      canvasViewport.style.height = `${baseHeight * currentZoom}px`;
+      updateHierarchyLevel();
+      updateZoomDisplay();
+      drawLinks();
+    }
+
+    function fitCanvas() {
+      const availableWidth = canvasScroll.clientWidth - 32;
+      const availableHeight = canvasScroll.clientHeight - 32;
+      if (availableWidth <= 0 || availableHeight <= 0) return;
+      const bounds = getContentBounds();
+      const fitZoom = Math.min(availableWidth / bounds.width, availableHeight / bounds.height, 1);
+      applyZoom(fitZoom);
+      const centeredLeft = bounds.left * currentZoom - Math.max(0, (availableWidth - bounds.width * currentZoom) / 2);
+      const centeredTop = bounds.top * currentZoom - Math.max(0, (availableHeight - bounds.height * currentZoom) / 2);
+      canvasScroll.scrollTo({
+        left: Math.max(0, centeredLeft),
+        top: Math.max(0, centeredTop),
+        behavior: "smooth"
+      });
+    }
+
+    function canStartPan(target) {
+      return !target.closest(".entity") && !target.closest(".panel") && !target.closest(".menu-dock");
+    }
+
+    function beginPan(event) {
+      if (event.button !== 0 || !canStartPan(event.target)) return;
+      panMoved = false;
+      panJustEnded = false;
+      panState = {
+        startX: event.clientX,
+        startY: event.clientY,
+        scrollLeft: canvasScroll.scrollLeft,
+        scrollTop: canvasScroll.scrollTop
+      };
+      canvasScroll.classList.add("is-panning");
+    }
+
+    function updatePan(event) {
+      if (!panState) return;
+      const dx = event.clientX - panState.startX;
+      const dy = event.clientY - panState.startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        panMoved = true;
+      }
+      canvasScroll.scrollLeft = panState.scrollLeft - dx;
+      canvasScroll.scrollTop = panState.scrollTop - dy;
+    }
+
+    function endPan() {
+      if (!panState) return;
+      const scrolled = canvasScroll.scrollLeft !== panState.scrollLeft || canvasScroll.scrollTop !== panState.scrollTop;
+      panJustEnded = panMoved || scrolled;
+      if (panJustEnded) {
+        suppressBlankClickUntil = Date.now() + 250;
+      }
+      panState = null;
+      canvasScroll.classList.remove("is-panning");
+    }
+
+    function handleCanvasWheel(event) {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      event.preventDefault();
+      const rect = canvasScroll.getBoundingClientRect();
+      const offsetX = (event.clientX - rect.left + canvasScroll.scrollLeft) / currentZoom;
+      const offsetY = (event.clientY - rect.top + canvasScroll.scrollTop) / currentZoom;
+      const nextZoom = currentZoom + (event.deltaY < 0 ? 0.08 : -0.08);
+      applyZoom(nextZoom);
+      canvasScroll.scrollLeft = offsetX * currentZoom - (event.clientX - rect.left);
+      canvasScroll.scrollTop = offsetY * currentZoom - (event.clientY - rect.top);
+    }
+
+    function handleCanvasClick(event) {
+      const target = event.target;
+      const clickedInteractive = target.closest(".group") || target.closest(".entity") || target.closest(".panel") || target.closest(".menu-dock") || target.closest(".zoom-dock") || target.closest(".connection") || target.closest(".connection-label");
+      if (clickedInteractive) return;
+      if (demoMode) return;
+      if (Date.now() < suppressBlankClickUntil) {
+        panJustEnded = false;
+        panMoved = false;
+        return;
+      }
+      if (panJustEnded || panMoved || panState) {
+        panJustEnded = false;
+        panMoved = false;
+        return;
+      }
+      clearSelection();
+    }
+
+    function selectEntity(id) {
+      currentSelection = id;
+      currentSelectionType = "entity";
+      const focused = getFocusedVisibleEntities();
+      const hasFocus = currentFocus !== "all";
+      const entityGroup = entityToGroup[id];
+
+      canvas.querySelectorAll(".entity").forEach((entity) => {
+        if (entity.style.display === "none") return;
+        const isActive = entity.dataset.id === id;
+        const isFocused = focused.has(entity.dataset.id);
+        entity.classList.toggle("is-active", isActive);
+        entity.classList.toggle("is-dim", !isActive && (!isFocused && hasFocus));
+      });
+
+      canvas.querySelectorAll(".group").forEach((group) => {
+        if (group.classList.contains("is-hidden")) return;
+        const visibleChildren = Array.from(group.querySelectorAll(".entity")).filter((entity) => entity.style.display !== "none");
+        const containsActive = visibleChildren.some((entity) => entity.dataset.id === id);
+        const focusedCount = visibleChildren.filter((entity) => focused.has(entity.dataset.id)).length;
+        const groupId = group.dataset.id;
+        group.classList.toggle("is-active", containsActive || (hasFocus && focusedCount > 0));
+        group.classList.remove("is-current");
+        group.classList.toggle("is-dim", !containsActive && hasFocus && focusedCount === 0);
+      });
+
+      svg.querySelectorAll(".connection, .connection-label").forEach((path) => {
+        const fromGroup = path.dataset.fromGroup;
+        const toGroup = path.dataset.toGroup;
+        const isFocused = Array.from(focused).some((entityId) => entityToGroup[entityId] === fromGroup)
+          && Array.from(focused).some((entityId) => entityToGroup[entityId] === toGroup);
+        path.classList.remove("is-active");
+        path.classList.toggle("is-dim", hasFocus && !isFocused);
+        if (path.classList.contains("connection")) {
+          path.setAttribute("marker-end", "url(#arrow-default)");
+        }
+      });
+
+      updateDetail(id);
+      setPanelOpen(detailPanel, toggleDetail, true);
+    }
+
+    function setDemoOpen(open) {
+      demoMode = open;
+      setPanelOpen(demoPanel, null, open);
+      updateModeButtons();
+      if (!open) {
+        setPanelOpen(detailPanel, toggleDetail, false);
+      }
+    }
+
+    function renderDemoStep() {
+      const step = demoSteps[demoStepIndex];
+      if (!step) return;
+      demoStepTitle.textContent = step.title;
+      demoStepMeta.textContent = `第 ${demoStepIndex + 1} / ${demoSteps.length} 步`;
+      demoStepText.textContent = step.text;
+      demoPrev.disabled = demoStepIndex === 0;
+      demoNext.textContent = demoStepIndex === demoSteps.length - 1 ? "完成" : "下一步";
+    }
+
+    function showDemoStep(index, behavior = "smooth") {
+      demoStepIndex = Math.max(0, Math.min(index, demoSteps.length - 1));
+      const step = demoSteps[demoStepIndex];
+      if (!step) return;
+      if (currentStage !== "all") {
+        applyStage("all");
+      }
+      selectGroup(step.groupId, {
+        highlightGroups: step.highlightGroups || [],
+        equalHighlight: Array.isArray(step.highlightGroups) && step.highlightGroups.length > 0
+      });
+      setPanelOpen(detailPanel, toggleDetail, false);
+      renderDemoStep();
+      setDemoOpen(true);
+      centerGroupsInView([step.groupId, ...(step.highlightGroups || [])], behavior);
+    }
+
+    function startDemo() {
+      showDemoStep(0, "smooth");
+    }
+
+    function stopDemo() {
+      setDemoOpen(false);
+    }
+
+    async function initializeCanvas() {
+      currentLayoutBounds = null;
+      syncCanvasDimensions();
+
+      groups.forEach(createGroup);
+      applyStage("all");
+
+      stageSwitcher.querySelectorAll(".stage-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          applyStage(button.dataset.stage);
+        });
+      });
+
+      focusSwitcher.querySelectorAll(".focus-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          applyFocus(button.dataset.focus);
+        });
+      });
+
+      if (modeExplore) {
+        modeExplore.addEventListener("click", () => {
+          if (demoMode) {
+            stopDemo();
+          } else {
+            updateModeButtons();
+          }
+        });
+      }
+
+      if (modeDemo) {
+        modeDemo.addEventListener("click", () => {
+          if (!demoMode) {
+            startDemo();
+          } else {
+            updateModeButtons();
+          }
+        });
+      }
+
+      if (toggleIntro) {
+        toggleIntro.addEventListener("click", () => togglePanel(introPanel, toggleIntro));
+      }
+
+      if (closeIntro) {
+        closeIntro.addEventListener("click", () => setPanelOpen(introPanel, toggleIntro, false));
+      }
+
+      introPanel.querySelectorAll(".intro-qr-toggle").forEach((button) => {
+        button.addEventListener("click", () => {
+          const src = button.dataset.qrSrc;
+          if (!src) return;
+          qrModalTitle.textContent = button.dataset.qrTitle || "二维码";
+          qrModalImage.src = src;
+          qrModalImage.alt = button.dataset.qrTitle || "二维码";
+          qrModalNote.textContent = button.dataset.qrNote || "";
+          setPanelOpen(qrModal, null, true);
+        });
+      });
+
+      if (closeQrModal) {
+        closeQrModal.addEventListener("click", () => setPanelOpen(qrModal, null, false));
+      }
+
+      if (demoPrev) {
+        demoPrev.addEventListener("click", () => {
+          showDemoStep(demoStepIndex - 1);
+        });
+      }
+
+      if (demoNext) {
+        demoNext.addEventListener("click", () => {
+          if (demoStepIndex >= demoSteps.length - 1) {
+            stopDemo();
+            return;
+          }
+          showDemoStep(demoStepIndex + 1);
+        });
+      }
+
+      if (demoClose) {
+        demoClose.addEventListener("click", stopDemo);
+      }
+
+      zoomIn.addEventListener("click", () => applyZoom(currentZoom + 0.1));
+      zoomOut.addEventListener("click", () => applyZoom(currentZoom - 0.1));
+      zoomReset.addEventListener("click", () => applyZoom(1));
+      zoomFit.addEventListener("click", fitCanvas);
+      zoomDockIn.addEventListener("click", () => applyZoom(currentZoom + 0.1));
+      zoomDockOut.addEventListener("click", () => applyZoom(currentZoom - 0.1));
+      zoomDockFit.addEventListener("click", fitCanvas);
+
+      window.addEventListener("resize", fitCanvas);
+      window.addEventListener("mousemove", updatePan);
+      window.addEventListener("mouseup", endPan);
+      window.addEventListener("mouseleave", endPan);
+      canvasScroll.addEventListener("mousedown", beginPan);
+      canvasScroll.addEventListener("click", handleCanvasClick);
+      canvasScroll.addEventListener("wheel", handleCanvasWheel, { passive: false });
+      canvasScroll.addEventListener("scroll", drawLinks, { passive: true });
+      setPanelOpen(introPanel, toggleIntro, false);
+      setPanelOpen(qrModal, null, false);
+      setPanelOpen(controlsPanel, toggleControls, false);
+      setPanelOpen(detailPanel, toggleDetail, false);
+      setDemoOpen(false);
+      updateModeButtons();
+      applyZoom(1);
+      const developerGroup = groups.find((group) => group.id === "g-developer");
+      const initialLeft = developerGroup
+        ? Math.max(0, developerGroup.x + contentOffsetX - 120)
+        : 0;
+      canvasScroll.scrollTo({
+        left: initialLeft,
+        top: 0,
+        behavior: "auto"
+      });
+    }
+
+    syncCanvasDimensions();
+    initializeCanvas();
+  </script>
+</body>
+</html>
